@@ -45,8 +45,8 @@ func main() {
 	})
 
 	// 启动服务器
-	log.Println("Server starting on :8080...")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	log.Println("Server starting on :1834...")
+	if err := http.ListenAndServe(":1834", nil); err != nil {
 		log.Fatal(err)
 	}
 }
