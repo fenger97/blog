@@ -28,10 +28,27 @@ func main() {
 		http.ServeFile(w, r, "static/index.html")
 	})
 
+	// 注册登录接口
+	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			http.ServeFile(w, r, "static/login.html")
+		} else if r.Method == http.MethodPost {
+			handlers.LoginHandler(w, r)
+		} else {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+	http.HandleFunc("/logout", handlers.LogoutHandler)
+	http.HandleFunc("/status", handlers.StatusHandler)
+
 	// 设置API路由
 	http.HandleFunc("/posts", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
+			if !handlers.CheckLogin(r) {
+				http.Error(w, "未登录或无权限", http.StatusUnauthorized)
+				return
+			}
 			postHandler.CreatePost(w, r)
 		case http.MethodGet:
 			if r.URL.Query().Get("id") != "" {

@@ -8,6 +8,7 @@
 - 响应式设计，支持移动端访问
 - 简洁美观的用户界面
 - 实时文章列表更新
+- **管理员登录**与权限控制
 
 ## 技术栈
 
@@ -34,13 +35,16 @@
 │   │   ├── post.go         # 文章模型
 │   │   └── store.go        # 存储实现
 │   └── handlers/           # HTTP 处理器
+│       ├── auth.go         # 认证处理器
 │       └── post.go         # 文章处理器
 ├── static/                 # 静态文件
 │   ├── css/                # 样式文件
 │   │   └── style.css       # 主样式文件
 │   ├── js/                 # JavaScript 文件
+│   │   ├── login.js        # 登录页脚本
 │   │   └── main.js         # 主脚本文件
-│   └── index.html          # 主页面
+│   ├── index.html          # 主页面
+│   └── login.html          # 登录页面
 └── README.md               # 项目说明
 ```
 
@@ -65,7 +69,10 @@ go run cmd/server/main.go
 ```
 
 3. 访问网站
-打开浏览器访问 http://localhost:8080
+- **首页**：打开浏览器访问 `http://localhost:1834`
+- **登录页**：管理员请访问 `http://localhost:1834/login`
+  - 默认用户名：`admin`
+  - 默认密码：`123456` (可在 `internal/handlers/auth.go` 中修改)
 
 ## API 接口
 
@@ -90,6 +97,29 @@ Content-Type: application/json
     "title": "文章标题",
     "content": "文章内容"
 }
+```
+
+### 认证相关接口
+
+1. **登录**
+```
+POST /login
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "password": "yourpassword"
+}
+```
+
+2. **退出登录**
+```
+POST /logout
+```
+
+3. **检查登录状态**
+```
+GET /status
 ```
 
 ## 前端开发
