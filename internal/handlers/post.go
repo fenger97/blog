@@ -2,19 +2,19 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
-	"strconv"
 
 	"blog/internal/models"
 )
 
 // PostHandler 处理文章相关的请求
 type PostHandler struct {
-	store *models.Store
+	store *models.MongoStore
 }
 
 // NewPostHandler 创建一个新的文章处理器
-func NewPostHandler(store *models.Store) *PostHandler {
+func NewPostHandler(store *models.MongoStore) *PostHandler {
 	return &PostHandler{store: store}
 }
 
@@ -31,7 +31,12 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := h.store.CreatePost(&post)
+	id, err := h.store.CreatePost(&post)
+	if err != nil {
+		http.Error(w, "Failed to create post", http.StatusInternalServerError)
+		return
+	}
+
 	post.ID = id
 
 	w.Header().Set("Content-Type", "application/json")
@@ -46,14 +51,18 @@ func (h *PostHandler) GetPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	idStr := r.URL.Query().Get("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		http.Error(w, "Post ID is required", http.StatusBadRequest)
 		return
 	}
 
-	post := h.store.GetPost(id)
+	post, err := h.store.GetPost(id)
+	if err != nil {
+		http.Error(w, "Failed to get post", http.StatusInternalServerError)
+		return
+	}
+
 	if post == nil {
 		http.Error(w, "Post not found", http.StatusNotFound)
 		return
@@ -70,7 +79,28 @@ func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	posts := h.store.GetAllPosts()
+	posts, err := h.store.GetAllPosts()
+	if err != nil {
+		log.Printf("Error getting posts: %v", err)
+		http.Error(w, "Failed to get posts", http.StatusInternalServerError)
+		return
+	}
+
+	// 为每篇文章添加 HTML 内容
+	type PostWithHTML struct {
+		*models.Post
+		HTMLContent string `json:"html_content"`
+	}
+
+	postsWithHTML := make([]PostWithHTML, len(posts))
+	for i, post := range posts {
+		postsWithHTML[i] = PostWithHTML{
+			Post:        post,
+			HTMLContent: post.GetHTMLContent(),
+		}
+	}
+
+	log.Printf("Returning %d posts to client", len(postsWithHTML))
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(posts)
-} 
+	json.NewEncoder(w).Encode(postsWithHTML)
+}

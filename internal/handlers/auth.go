@@ -2,15 +2,19 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"math/rand"
 	"net/http"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
 	adminUsername = "admin"
-	adminPassword = "123456" // 你可以改成自己的密码
-	cookieName    = "blog_session"
+	// 用 bcrypt 生成的密码 hash
+	adminPasswordHash = "$2a$10$r9rYtPWQb4oP7zD4zSs4V.S1W91E7QgEmdZbrhKzGgH.uN3BG9Yly" // 示例hash，请替换为你自己的
+	cookieName        = "blog_session"
 )
 
 // 简单的内存 session 存储
@@ -29,8 +33,9 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
+	log.Println(req.Password)
 
-	if req.Username != adminUsername || req.Password != adminPassword {
+	if req.Username != adminUsername || bcrypt.CompareHashAndPassword([]byte(adminPasswordHash), []byte(req.Password)) != nil {
 		http.Error(w, "用户名或密码错误", http.StatusUnauthorized)
 		return
 	}

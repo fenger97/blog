@@ -3,14 +3,24 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 
+	"blog/internal/database"
 	"blog/internal/handlers"
 	"blog/internal/models"
 )
 
 func main() {
-	// 创建存储实例
-	store := models.NewStore()
+	// 连接到 MongoDB
+	if err := database.ConnectMongoDB(); err != nil {
+		log.Fatal("Failed to connect to MongoDB:", err)
+	}
+	defer database.CloseMongoDB()
+
+	// 创建 MongoDB 存储实例
+	store := models.NewMongoStore()
 
 	// 创建处理器
 	postHandler := handlers.NewPostHandler(store)
@@ -60,6 +70,16 @@ func main() {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
+
+	// 优雅关闭
+	go func() {
+		sigChan := make(chan os.Signal, 1)
+		signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+		<-sigChan
+		log.Println("Shutting down server...")
+		database.CloseMongoDB()
+		os.Exit(0)
+	}()
 
 	// 启动服务器
 	log.Println("Server starting on :1834...")
