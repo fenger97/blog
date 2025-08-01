@@ -1,0 +1,9 @@
+# 上传的图片文件
+static/uploads/images/*.jpg
+static/uploads/images/*.jpeg
+static/uploads/images/*.png
+static/uploads/images/*.gif
+static/uploads/images/*.webp
+
+# 但保留目录结构
+!static/uploads/images/.gitkeep 

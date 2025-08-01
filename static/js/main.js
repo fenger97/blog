@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabBtns = document.querySelectorAll('.tab-btn');
     const contentTextarea = document.getElementById('content');
     const previewDiv = document.getElementById('preview');
+    const uploadImageBtn = document.getElementById('uploadImageBtn');
+    const imageInput = document.getElementById('imageInput');
 
     // Markdown 编辑器标签页切换
     tabBtns.forEach(btn => {
@@ -39,6 +41,74 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // 图片上传功能
+    uploadImageBtn.addEventListener('click', () => {
+        imageInput.click();
+    });
+
+    imageInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // 检查文件类型
+        if (!file.type.startsWith('image/')) {
+            alert('请选择图片文件');
+            return;
+        }
+
+        // 检查文件大小 (10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert('图片大小不能超过 10MB');
+            return;
+        }
+
+        // 创建 FormData
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            uploadImageBtn.textContent = '上传中...';
+            uploadImageBtn.disabled = true;
+
+            const response = await fetch('/upload/image', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success) {
+                    // 插入 Markdown 图片语法
+                    const imageMarkdown = `![图片](${result.url})`;
+                    const textarea = document.getElementById('content');
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    const text = textarea.value;
+                    
+                    textarea.value = text.substring(0, start) + imageMarkdown + text.substring(end);
+                    textarea.focus();
+                    textarea.setSelectionRange(start + imageMarkdown.length, start + imageMarkdown.length);
+                    
+                    // 如果当前在预览模式，更新预览
+                    if (previewDiv.classList.contains('hidden') === false) {
+                        updatePreview();
+                    }
+                } else {
+                    alert('上传失败：' + (result.error || '未知错误'));
+                }
+            } else {
+                alert('上传失败，请重试');
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert('上传失败，请重试');
+        } finally {
+            uploadImageBtn.textContent = '📷 插入图片';
+            uploadImageBtn.disabled = false;
+            imageInput.value = ''; // 清空文件选择
+        }
+    });
+
     // 更新预览内容
     function updatePreview() {
         const markdown = contentTextarea.value;
@@ -56,6 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
             .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
             .replace(/\*(.*)\*/gim, '<em>$1</em>')
             .replace(/`(.*)`/gim, '<code>$1</code>')
+            .replace(/!\[(.*?)\]\((.*?)\)/gim, '<img src="$2" alt="$1" style="max-width: 100%; height: auto; border-radius: 4px; margin: 1rem 0;">')
+            .replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2" target="_blank">$1</a>')
             .replace(/\n/gim, '<br>');
     }
 

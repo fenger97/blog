@@ -30,6 +30,12 @@
                             <button type="button" class="tab-btn active" data-tab="edit">编辑</button>
                             <button type="button" class="tab-btn" data-tab="preview">预览</button>
                         </div>
+                        <div class="editor-toolbar">
+                            <button type="button" class="toolbar-btn" id="uploadImageBtn">
+                                📷 插入图片
+                            </button>
+                            <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                        </div>
                         <div class="editor-content">
                             <textarea id="content" name="content" rows="12" required placeholder="在这里输入 Markdown 内容..."></textarea>
                             <div id="preview" class="markdown-preview hidden"></div>

@@ -51,6 +51,9 @@ func main() {
 	http.HandleFunc("/logout", handlers.LogoutHandler)
 	http.HandleFunc("/status", handlers.StatusHandler)
 
+	// 注册图片上传接口
+	http.HandleFunc("/upload/image", handlers.UploadImage)
+
 	// 设置API路由
 	http.HandleFunc("/posts", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {

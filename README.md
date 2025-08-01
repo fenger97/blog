@@ -11,6 +11,7 @@
 - **管理员登录**与权限控制
 - **Markdown 支持**
 - **MongoDB 数据持久化存储**
+- **图片上传和展示功能**
 
 ## 技术栈
 
@@ -41,7 +42,8 @@
 │   │   └── mongo_store.go # MongoDB 存储实现
 │   ├── handlers/         # HTTP 处理器
 │   │   ├── auth.go      # 认证处理器
-│   │   └── post.go      # 文章处理器
+│   │   ├── post.go      # 文章处理器
+│   │   └── upload.go    # 图片上传处理器
 │   └── database/         # 数据库相关
 │       └── mongo.go     # MongoDB 连接管理
 ├── static/               # 静态文件
@@ -50,6 +52,8 @@
 │   ├── js/              # JavaScript 文件
 │   │   ├── login.js     # 登录页脚本
 │   │   └── main.js      # 主页脚本
+│   ├── uploads/         # 上传文件
+│   │   └── images/      # 图片存储目录
 │   ├── index.html       # 主页面
 │   └── login.html       # 登录页面
 ├── docker-compose.yml   # Docker Compose 配置
@@ -111,6 +115,25 @@ Content-Type: application/json
 {
     "title": "文章标题",
     "content": "文章内容（支持 Markdown）"
+}
+```
+
+### 图片上传接口
+
+1. **上传图片**
+```
+POST /upload/image
+Content-Type: multipart/form-data
+
+Form Data:
+- image: 图片文件 (支持 JPG, PNG, GIF, WebP，最大 10MB)
+```
+
+**响应示例**：
+```json
+{
+    "success": true,
+    "url": "/static/uploads/images/1234567890.jpg"
 }
 ```
 
@@ -182,6 +205,7 @@ GET /status
 
 - 点击"写新文章"显示表单
 - **Markdown 编辑器**：支持实时预览
+- **图片上传**：支持拖拽或点击上传图片，自动插入 Markdown 语法
 - 表单提交后自动刷新文章列表
 - 实时显示文章发布时间
 - 错误处理和用户提示
@@ -192,6 +216,7 @@ GET /status
 - [x] 支持 Markdown 格式
 - [x] MongoDB 数据持久化存储
 - [x] 文章创建和查看
+- [x] 图片上传和展示功能
 - [ ] 添加文章编辑功能
 - [ ] 添加文章删除功能
 - [ ] 实现文章分类
