@@ -7,12 +7,19 @@ import (
 	"os/signal"
 	"syscall"
 
+	"blog/configs"
 	"blog/internal/database"
 	"blog/internal/handlers"
 	"blog/internal/models"
 )
 
 func main() {
+	// 加载配置
+	cfg := configs.LoadConfig()
+
+	// 初始化认证模块
+	handlers.InitAuth(cfg)
+
 	// 连接到 MongoDB
 	if err := database.ConnectMongoDB(); err != nil {
 		log.Fatal("Failed to connect to MongoDB:", err)
@@ -85,8 +92,8 @@ func main() {
 	}()
 
 	// 启动服务器
-	log.Println("Server starting on :1834...")
-	if err := http.ListenAndServe(":1834", nil); err != nil {
+	log.Printf("Server starting on :%s...", cfg.ServerPort)
+	if err := http.ListenAndServe(":"+cfg.ServerPort, nil); err != nil {
 		log.Fatal(err)
 	}
 }

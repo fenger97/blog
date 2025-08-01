@@ -5,6 +5,8 @@ import (
 	"log"
 	"time"
 
+	"blog/configs"
+
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -21,8 +23,11 @@ func ConnectMongoDB() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// 连接字符串 - 使用 Docker 端口映射和认证
-	clientOptions := options.Client().ApplyURI("mongodb://admin:password@localhost:27018")
+	// 获取配置
+	cfg := configs.LoadConfig()
+
+	// 连接字符串 - 使用配置文件中的 URI
+	clientOptions := options.Client().ApplyURI(cfg.MongoURI)
 
 	// 连接到 MongoDB
 	client, err := mongo.Connect(ctx, clientOptions)

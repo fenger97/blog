@@ -69,7 +69,7 @@
 - Docker 和 Docker Compose（用于运行 MongoDB）
 - 现代浏览器（支持 ES6+）
 
-### 安装和运行
+### 方式一：本地开发
 
 1. 克隆项目
 ```bash
@@ -92,6 +92,51 @@ go run cmd/server/main.go
 - **登录页**：管理员请访问 `http://localhost:1834/login`
   - 默认用户名：`admin`
   - 默认密码：`123456` (可在 `internal/handlers/auth.go` 中修改)
+
+### 方式二：容器化部署（推荐）
+
+1. 克隆项目
+```bash
+git clone <repository-url>
+cd blog
+```
+
+2. 配置环境变量
+```bash
+cp env.example .env
+# 编辑 .env 文件，设置你的管理员密码
+```
+
+3. 一键部署
+```bash
+./deploy.sh
+```
+
+4. 访问网站
+- **首页**：`http://localhost:1834`
+- **登录页**：`http://localhost:1834/login`
+
+### 方式三：手动 Docker 部署
+
+1. 构建镜像
+```bash
+docker-compose build
+```
+
+2. 启动服务
+```bash
+docker-compose up -d
+```
+
+3. 查看状态
+```bash
+docker-compose ps
+```
+
+4. 查看日志
+```bash
+docker-compose logs -f
+```
 
 ## API 接口
 
@@ -226,21 +271,50 @@ GET /status
 
 ## 部署说明
 
+### 容器化部署
+
+#### 开发环境
+```bash
+# 启动所有服务
+docker-compose up -d
+
+# 查看日志
+docker-compose logs -f
+
+# 停止服务
+docker-compose down
+```
+
+#### 生产环境
+```bash
+# 启动生产环境（包含 Nginx）
+docker-compose --profile production up -d
+
+# 配置 SSL 证书
+# 1. 将证书文件放在 ssl/ 目录
+# 2. 修改 nginx.conf 中的域名
+# 3. 重启 Nginx 服务
+```
+
+#### 环境变量配置
+```bash
+# 复制环境变量模板
+cp env.example .env
+
+# 编辑 .env 文件
+ADMIN_USERNAME=your_admin_username
+ADMIN_PASSWORD=your_secure_password
+SERVER_PORT=1834
+MONGO_URI=mongodb://admin:password@mongodb:27017
+```
+
 ### 生产环境建议
 - 使用 HTTPS 协议
 - 配置 MongoDB 认证
 - 设置防火墙规则
 - 定期备份数据库
-
-### Docker 部署
-```bash
-# 启动 MongoDB
-docker compose up -d mongodb
-
-# 构建并运行应用
-docker build -t blog .
-docker run -p 1834:1834 blog
-```
+- 使用强密码
+- 配置日志轮转
 
 ## 贡献指南
 

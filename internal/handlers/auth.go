@@ -2,23 +2,25 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
 	"math/rand"
 	"net/http"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
+	"blog/configs"
 )
 
-const (
-	adminUsername = "admin"
-	// 用 bcrypt 生成的密码 hash
-	adminPasswordHash = "$2a$10$r9rYtPWQb4oP7zD4zSs4V.S1W91E7QgEmdZbrhKzGgH.uN3BG9Yly" // 示例hash，请替换为你自己的
-	cookieName        = "blog_session"
+var (
+	config     *configs.Config
+	cookieName = "blog_session"
 )
 
 // 简单的内存 session 存储
 var sessions = make(map[string]struct{})
+
+// InitAuth 初始化认证配置
+func InitAuth(cfg *configs.Config) {
+	config = cfg
+}
 
 // LoginRequest 登录请求体
 type LoginRequest struct {
@@ -33,9 +35,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
-	log.Println(req.Password)
 
-	if req.Username != adminUsername || bcrypt.CompareHashAndPassword([]byte(adminPasswordHash), []byte(req.Password)) != nil {
+	if req.Username != config.AdminUsername || req.Password != config.AdminPassword {
 		http.Error(w, "用户名或密码错误", http.StatusUnauthorized)
 		return
 	}
