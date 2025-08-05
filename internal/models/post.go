@@ -1,6 +1,8 @@
 package models
 
 import (
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/gomarkdown/markdown"
@@ -46,6 +48,52 @@ func (p *Post) GetHTMLContent() string {
 	// 渲染为 HTML
 	html := markdown.Render(doc, renderer)
 	return string(html)
+}
+
+// GetExcerpt 获取内容摘要，去除 Markdown 标记并截取前 200 个字符
+func (p *Post) GetExcerpt() string {
+	// 去除 Markdown 标记
+	excerpt := p.Content
+	
+	// 去除标题标记
+	excerpt = regexp.MustCompile(`^#{1,6}\s+`).ReplaceAllString(excerpt, "")
+	
+	// 去除粗体和斜体标记
+	excerpt = regexp.MustCompile(`\*\*(.*?)\*\*`).ReplaceAllString(excerpt, "$1")
+	excerpt = regexp.MustCompile(`\*(.*?)\*`).ReplaceAllString(excerpt, "$1")
+	
+	// 去除链接标记，保留链接文本
+	excerpt = regexp.MustCompile(`\[([^\]]+)\]\([^)]+\)`).ReplaceAllString(excerpt, "$1")
+	
+	// 去除图片标记
+	excerpt = regexp.MustCompile(`!\[([^\]]*)\]\([^)]+\)`).ReplaceAllString(excerpt, "")
+	
+	// 去除代码标记
+	excerpt = regexp.MustCompile("`([^`]+)`").ReplaceAllString(excerpt, "$1")
+	
+	// 去除列表标记
+	excerpt = regexp.MustCompile(`^[\s]*[-*+]\s+`).ReplaceAllString(excerpt, "")
+	excerpt = regexp.MustCompile(`^[\s]*\d+\.\s+`).ReplaceAllString(excerpt, "")
+	
+	// 去除引用标记
+	excerpt = regexp.MustCompile(`^>\s+`).ReplaceAllString(excerpt, "")
+	
+	// 去除多余的空行和空格
+	excerpt = regexp.MustCompile(`\n\s*\n`).ReplaceAllString(excerpt, "\n")
+	excerpt = strings.TrimSpace(excerpt)
+	
+	// 截取前 200 个字符
+	if len(excerpt) > 200 {
+		// 尝试在句号处截断
+		lastPeriod := strings.LastIndex(excerpt[:200], "。")
+		if lastPeriod > 150 { // 如果句号位置合理，在句号处截断
+			excerpt = excerpt[:lastPeriod+1]
+		} else {
+			excerpt = excerpt[:200] + "..."
+		}
+	}
+	
+	return excerpt
 }
 
 // ToMap 转换为 map 用于 MongoDB 插入

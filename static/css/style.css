@@ -1,133 +1,297 @@
-:root {
-    --primary-color: #4a90e2;
-    --text-color: #333;
-    --bg-color: #f5f5f5;
-    --card-bg: #fff;
-    --border-color: #e1e1e1;
-}
-
+/* 基础样式重置 */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* 根变量 */
+:root {
+    --primary-color: #000;
+    --secondary-color: #666;
+    --background-color: #fff;
+    --border-color: #e5e5e5;
+    --text-color: #333;
+    --link-color: #0066cc;
+    --hover-color: #004499;
+    --success-color: #28a745;
+    --error-color: #dc3545;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --max-width: 680px;
+    --line-height: 1.6;
+}
+
+/* 基础样式 */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    line-height: 1.6;
+    font-family: var(--font-family);
+    line-height: var(--line-height);
     color: var(--text-color);
-    background-color: var(--bg-color);
+    background-color: var(--background-color);
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
+/* 容器 */
 .container {
-    max-width: 800px;
+    max-width: var(--max-width);
     margin: 0 auto;
-    padding: 2rem;
+    padding: 0 20px;
 }
 
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
+/* 头部样式 */
+.header {
+    padding: 60px 0 40px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 40px;
 }
 
-h1 {
+.header-content {
+    text-align: center;
+}
+
+.site-title {
+    font-size: 2.5rem;
+    font-weight: 700;
     color: var(--primary-color);
-    font-size: 2rem;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
 }
 
+.site-description {
+    font-size: 1.1rem;
+    color: var(--secondary-color);
+    margin-bottom: 30px;
+    font-weight: 400;
+}
+
+.admin-controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* 按钮样式 */
 .btn {
-    padding: 0.5rem 1rem;
+    padding: 12px 24px;
     border: none;
-    border-radius: 4px;
-    background-color: var(--primary-color);
-    color: white;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.2s;
-}
-
-.btn:hover {
-    background-color: #357abd;
+    transition: all 0.2s ease;
+    font-family: var(--font-family);
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
 }
 
 .btn-primary {
     background-color: var(--primary-color);
+    color: white;
 }
 
-.hidden {
-    display: none;
+.btn-primary:hover {
+    background-color: #333;
 }
 
-.post-form {
-    background-color: var(--card-bg);
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
-}
-
-.post-form.hidden {
-    display: none;
-}
-
-.form-group {
-    margin-bottom: 1rem;
-}
-
-label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-}
-
-input[type="text"],
-textarea {
-    width: 100%;
-    padding: 0.5rem;
+.btn-secondary {
+    background-color: transparent;
+    color: var(--text-color);
     border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-size: 1rem;
 }
 
-.form-actions {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
+.btn-secondary:hover {
+    background-color: #f8f9fa;
 }
 
+/* 隐藏类 */
+.hidden {
+    display: none !important;
+}
+
+/* 主内容区域 */
+.main-content {
+    min-height: 60vh;
+}
+
+/* 文章列表 */
 .posts {
-    display: grid;
-    gap: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
 }
 
+/* 文章卡片 */
 .post-card {
-    background-color: var(--card-bg);
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 40px;
+}
+
+.post-card:last-child {
+    border-bottom: none;
 }
 
 .post-card h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
     color: var(--primary-color);
-    margin-bottom: 0.5rem;
+    margin-bottom: 8px;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+}
+
+.post-card h2 a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.post-card h2 a:hover {
+    color: var(--link-color);
 }
 
 .post-meta {
-    color: #666;
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
+    font-size: 14px;
+    color: var(--secondary-color);
+    margin-bottom: 20px;
+    font-weight: 400;
+}
+
+.post-excerpt {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-color);
+    margin-bottom: 0;
 }
 
 .post-content {
-    margin-bottom: 1rem;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-color);
 }
 
-/* Markdown 编辑器样式 */
+.post-content p {
+    margin-bottom: 1.2rem;
+}
+
+.post-content h1,
+.post-content h2,
+.post-content h3,
+.post-content h4,
+.post-content h5,
+.post-content h6 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.post-content h1 { font-size: 1.8rem; }
+.post-content h2 { font-size: 1.5rem; }
+.post-content h3 { font-size: 1.3rem; }
+
+.post-content ul,
+.post-content ol {
+    margin-bottom: 1.2rem;
+    padding-left: 1.5rem;
+}
+
+.post-content li {
+    margin-bottom: 0.5rem;
+}
+
+.post-content blockquote {
+    border-left: 4px solid var(--border-color);
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+    color: var(--secondary-color);
+    font-style: italic;
+}
+
+.post-content code {
+    background-color: #f8f9fa;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.post-content pre {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+}
+
+.post-content pre code {
+    background: none;
+    padding: 0;
+}
+
+.post-content a {
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+.post-content a:hover {
+    text-decoration: underline;
+}
+
+.post-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    margin: 1.5rem 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 写文章表单 */
+.post-form {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 40px;
+    margin-bottom: 40px;
+}
+
+.form-container h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 30px;
+    color: var(--primary-color);
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 16px;
+    font-family: var(--font-family);
+    transition: border-color 0.2s ease;
+}
+
+.form-group input[type="text"]:focus {
+    outline: none;
+    border-color: var(--link-color);
+}
+
+/* Markdown 编辑器 */
 .markdown-editor {
     border: 1px solid var(--border-color);
-    border-radius: 4px;
+    border-radius: 6px;
     overflow: hidden;
 }
 
@@ -138,13 +302,14 @@ textarea {
 }
 
 .tab-btn {
-    padding: 0.5rem 1rem;
+    padding: 12px 20px;
     border: none;
     background: none;
     cursor: pointer;
-    font-size: 0.9rem;
-    color: #666;
-    transition: all 0.2s;
+    font-size: 14px;
+    color: var(--secondary-color);
+    transition: all 0.2s ease;
+    font-weight: 500;
 }
 
 .tab-btn.active {
@@ -161,18 +326,18 @@ textarea {
     display: flex;
     background-color: #f8f9fa;
     border-bottom: 1px solid var(--border-color);
-    padding: 0.5rem;
-    gap: 0.5rem;
+    padding: 8px 12px;
+    gap: 8px;
 }
 
 .toolbar-btn {
-    padding: 0.25rem 0.5rem;
+    padding: 6px 12px;
     border: 1px solid var(--border-color);
     background-color: white;
-    border-radius: 3px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 0.8rem;
-    transition: all 0.2s;
+    font-size: 12px;
+    transition: all 0.2s ease;
 }
 
 .toolbar-btn:hover {
@@ -181,115 +346,163 @@ textarea {
     border-color: var(--primary-color);
 }
 
-.editor-content {
-    position: relative;
-}
-
 .editor-content textarea {
+    width: 100%;
     border: none;
     border-radius: 0;
     resize: vertical;
     min-height: 300px;
+    padding: 16px;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 .markdown-preview {
-    padding: 1rem;
+    padding: 16px;
     background-color: white;
     min-height: 300px;
     overflow-y: auto;
 }
 
-/* Markdown 内容样式 */
-.markdown-preview h1,
-.markdown-preview h2,
-.markdown-preview h3,
-.markdown-preview h4,
-.markdown-preview h5,
-.markdown-preview h6 {
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
-    color: var(--text-color);
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 30px;
 }
 
-.markdown-preview h1 { font-size: 2rem; }
-.markdown-preview h2 { font-size: 1.5rem; }
-.markdown-preview h3 { font-size: 1.25rem; }
-
-.markdown-preview p {
-    margin-bottom: 1rem;
-    line-height: 1.6;
+/* 页脚 */
+.footer {
+    margin-top: 80px;
+    padding: 40px 0;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    color: var(--secondary-color);
+    font-size: 14px;
 }
 
-.markdown-preview ul,
-.markdown-preview ol {
-    margin-bottom: 1rem;
-    padding-left: 2rem;
+/* 空状态 */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--secondary-color);
 }
 
-.markdown-preview li {
-    margin-bottom: 0.25rem;
+.empty-state p {
+    font-size: 1.1rem;
+    margin-bottom: 0;
 }
 
-.markdown-preview blockquote {
-    border-left: 4px solid var(--primary-color);
-    padding-left: 1rem;
-    margin: 1rem 0;
-    color: #666;
-    font-style: italic;
+/* 登录页面 */
+.login-container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 40px 0;
 }
 
-.markdown-preview code {
+.login-form {
     background-color: #f8f9fa;
-    padding: 0.2rem 0.4rem;
-    border-radius: 3px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.9rem;
+    border-radius: 8px;
+    padding: 40px;
 }
 
-.markdown-preview pre {
-    background-color: #f8f9fa;
-    padding: 1rem;
-    border-radius: 4px;
-    overflow-x: auto;
-    margin: 1rem 0;
+.login-form .form-actions {
+    margin-top: 30px;
 }
 
-.markdown-preview pre code {
-    background: none;
-    padding: 0;
+.login-form .btn {
+    width: 100%;
 }
 
-.markdown-preview img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 4px;
-    margin: 1rem 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.markdown-preview a {
-    color: var(--primary-color);
+/* 文章详情页面 */
+.home-link {
+    color: inherit;
     text-decoration: none;
 }
 
-.markdown-preview a:hover {
-    text-decoration: underline;
+.home-link:hover {
+    color: var(--link-color);
 }
 
-.markdown-preview table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1rem 0;
+.post-detail {
+    margin-bottom: 40px;
 }
 
-.markdown-preview th,
-.markdown-preview td {
-    border: 1px solid var(--border-color);
-    padding: 0.5rem;
-    text-align: left;
+.post-header {
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.markdown-preview th {
-    background-color: #f8f9fa;
-    font-weight: 600;
+.post-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 12px;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.error-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--secondary-color);
+}
+
+.error-state p {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 16px;
+    }
+    
+    .header {
+        padding: 40px 0 30px;
+    }
+    
+    .site-title {
+        font-size: 2rem;
+    }
+    
+    .post-card h2 {
+        font-size: 1.5rem;
+    }
+    
+    .post-title {
+        font-size: 2rem;
+    }
+    
+    .post-form {
+        padding: 24px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .site-title {
+        font-size: 1.8rem;
+    }
+    
+    .post-card h2 {
+        font-size: 1.3rem;
+    }
+    
+    .post-title {
+        font-size: 1.8rem;
+    }
+    
+    .post-form {
+        padding: 20px;
+    }
 } 

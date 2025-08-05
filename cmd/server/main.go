@@ -71,13 +71,31 @@ func main() {
 			}
 			postHandler.CreatePost(w, r)
 		case http.MethodGet:
-			if r.URL.Query().Get("id") != "" {
-				postHandler.GetPost(w, r)
-			} else {
-				postHandler.GetAllPosts(w, r)
-			}
+			postHandler.GetAllPosts(w, r)
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
+	// 文章详情页面路由
+	http.HandleFunc("/post/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		// 提取文章 ID
+		path := r.URL.Path
+		if len(path) > 6 { // "/post/" 长度为 6
+			postID := path[6:] // 去掉 "/post/" 前缀
+			// 检查是否是 API 请求（带有 Accept: application/json 头）
+			if r.Header.Get("Accept") == "application/json" {
+				postHandler.GetPost(w, r, postID)
+			} else {
+				// 返回文章详情页面
+				http.ServeFile(w, r, "static/post.html")
+			}
+		} else {
+			http.Error(w, "Invalid post ID", http.StatusBadRequest)
 		}
 	})
 

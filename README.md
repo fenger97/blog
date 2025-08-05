@@ -1,17 +1,18 @@
 # 极简博客系统
 
-这是一个使用 Go 语言开发的极简博客系统，具有简洁的界面和基本的功能。
+这是一个使用 Go 语言开发的极简博客系统，采用类似 Jason Fried 博客的简洁设计风格，具有优雅的界面和完整的功能。
 
 ## 功能特性
 
-- 文章的创建和查看
-- 响应式设计，支持移动端访问
-- 简洁美观的用户界面
-- 实时文章列表更新
+- **极简设计风格**：采用 Inter 字体，黑白主色调，大量留白
+- **智能文章摘要**：首页只显示文章摘要，去除 Markdown 标记和图片
+- **文章详情页面**：独立的文章详情页，显示完整内容和图片
+- **响应式设计**：完美适配桌面端和移动端
 - **管理员登录**与权限控制
-- **Markdown 支持**
+- **Markdown 支持**：完整的 Markdown 编辑和预览功能
 - **MongoDB 数据持久化存储**
 - **图片上传和展示功能**
+- **智能日期显示**：相对时间（昨天、3天前等）
 
 ## 技术栈
 
@@ -25,8 +26,9 @@
 
 ### 前端
 - 原生 HTML5
-- CSS3（使用现代特性如变量、Flexbox等）
+- CSS3（使用现代特性如变量、Flexbox、Grid等）
 - 原生 JavaScript（ES6+）
+- **Inter 字体**：现代无衬线字体
 - 响应式设计
 
 ## 项目结构
@@ -38,7 +40,7 @@
 │       └── main.go        # 主程序
 ├── internal/              # 内部包
 │   ├── models/           # 数据模型
-│   │   ├── post.go      # 文章模型
+│   │   ├── post.go      # 文章模型（包含摘要功能）
 │   │   └── mongo_store.go # MongoDB 存储实现
 │   ├── handlers/         # HTTP 处理器
 │   │   ├── auth.go      # 认证处理器
@@ -48,14 +50,16 @@
 │       └── mongo.go     # MongoDB 连接管理
 ├── static/               # 静态文件
 │   ├── css/             # 样式文件
-│   │   └── style.css    # 主样式文件
+│   │   └── style.css    # 主样式文件（极简风格）
 │   ├── js/              # JavaScript 文件
 │   │   ├── login.js     # 登录页脚本
-│   │   └── main.js      # 主页脚本
+│   │   ├── main.js      # 主页脚本
+│   │   └── post.js      # 文章详情页脚本
 │   ├── uploads/         # 上传文件
 │   │   └── images/      # 图片存储目录
-│   ├── index.html       # 主页面
-│   └── login.html       # 登录页面
+│   ├── index.html       # 主页面（文章列表）
+│   ├── login.html       # 登录页面
+│   └── post.html        # 文章详情页面
 ├── docker-compose.yml   # Docker Compose 配置
 ├── mongo-init.js        # MongoDB 初始化脚本
 └── README.md            # 项目说明
@@ -120,39 +124,42 @@ cp env.example .env
 
 1. 构建镜像
 ```bash
-docker-compose build
+docker compose build
 ```
 
 2. 启动服务
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 3. 查看状态
 ```bash
-docker-compose ps
+docker compose ps
 ```
 
 4. 查看日志
 ```bash
-docker-compose logs -f
+docker compose logs -f
 ```
 
 ## API 接口
 
 ### 文章相关接口
 
-1. 获取所有文章
+1. **获取所有文章（摘要）**
 ```
 GET /posts
 ```
+返回文章摘要列表，包含标题、时间、内容摘要
 
-2. 获取单篇文章
+2. **获取单篇文章（完整内容）**
 ```
-GET /posts?id=<post_id>
+GET /post/{id}
+Accept: application/json
 ```
+返回完整的文章内容，包含 HTML 渲染
 
-3. 创建新文章
+3. **创建新文章**
 ```
 POST /posts
 Content-Type: application/json
@@ -232,28 +239,37 @@ GET /status
 
 ## 前端开发
 
+### 设计理念
+
+- **极简主义**：去除不必要的装饰元素
+- **内容优先**：让文章内容成为主角
+- **阅读友好**：合适的行高和字体大小
+- **现代感**：使用 Inter 字体和现代设计语言
+
 ### 页面结构
 
-- 顶部导航栏：显示博客标题和新建文章按钮
-- 文章表单：用于创建新文章（支持 Markdown 编辑和预览）
-- 文章列表：展示所有文章
+- **首页**：文章列表，显示摘要信息
+- **文章详情页**：完整的文章内容展示
+- **登录页**：管理员登录界面
+- **写文章页**：Markdown 编辑器
 
 ### 样式特点
 
-- 使用 CSS 变量管理主题颜色
-- 响应式布局，适配不同屏幕尺寸
-- 卡片式设计展示文章
-- 简洁现代的视觉风格
-- **Markdown 编辑器**：支持编辑/预览切换
+- **Inter 字体**：现代无衬线字体
+- **黑白主色调**：减少视觉干扰
+- **大量留白**：突出内容
+- **单栏布局**：阅读体验更佳
+- **响应式设计**：完美适配各种设备
+- **智能摘要**：自动去除 Markdown 标记
 
 ### 交互功能
 
-- 点击"写新文章"显示表单
-- **Markdown 编辑器**：支持实时预览
-- **图片上传**：支持拖拽或点击上传图片，自动插入 Markdown 语法
-- 表单提交后自动刷新文章列表
-- 实时显示文章发布时间
-- 错误处理和用户提示
+- **智能日期显示**：相对时间（昨天、3天前等）
+- **文章摘要**：自动生成内容摘要
+- **Markdown 编辑器**：支持编辑/预览切换
+- **图片上传**：支持拖拽或点击上传图片
+- **文章导航**：点击标题进入详情，返回首页
+- **空状态处理**：友好的空状态提示
 
 ## 开发计划
 
@@ -262,12 +278,17 @@ GET /status
 - [x] MongoDB 数据持久化存储
 - [x] 文章创建和查看
 - [x] 图片上传和展示功能
+- [x] **极简风格重新设计**
+- [x] **文章摘要功能**
+- [x] **文章详情页面**
 - [ ] 添加文章编辑功能
 - [ ] 添加文章删除功能
 - [ ] 实现文章分类
 - [ ] 添加评论功能
 - [ ] 实现文章搜索
 - [ ] 添加文章标签功能
+- [ ] 邮件订阅功能
+- [ ] RSS 订阅功能
 
 ## 部署说明
 
@@ -276,19 +297,19 @@ GET /status
 #### 开发环境
 ```bash
 # 启动所有服务
-docker-compose up -d
+docker compose up -d
 
 # 查看日志
-docker-compose logs -f
+docker compose logs -f
 
 # 停止服务
-docker-compose down
+docker compose down
 ```
 
 #### 生产环境
 ```bash
 # 启动生产环境（包含 Nginx）
-docker-compose --profile production up -d
+docker compose --profile production up -d
 
 # 配置 SSL 证书
 # 1. 将证书文件放在 ssl/ 目录
