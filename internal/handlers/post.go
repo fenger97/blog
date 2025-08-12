@@ -48,7 +48,7 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 // GetPost 获取单篇文章
 func (h *PostHandler) GetPost(w http.ResponseWriter, r *http.Request, postID string) {
 	post, err := h.store.GetPost(postID)
-	if err != nil {
+	if err != nil || post == nil {
 		log.Printf("Error getting post: %v", err)
 		http.Error(w, "文章不存在", http.StatusNotFound)
 		return
@@ -98,4 +98,46 @@ func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(postSummaries)
+}
+
+// UpdatePost 更新文章
+func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request, postID string) {
+	if r.Method != http.MethodPut {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var body struct {
+		Title   string `json:"title"`
+		Content string `json:"content"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	p := &models.Post{Title: body.Title, Content: body.Content}
+	if err := h.store.UpdatePost(postID, p); err != nil {
+		log.Printf("Update post error: %v", err)
+		http.Error(w, "更新失败", http.StatusInternalServerError)
+		return
+	}
+
+	// 返回最新内容
+	h.GetPost(w, r, postID)
+}
+
+// DeletePost 删除文章
+func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request, postID string) {
+	if r.Method != http.MethodDelete {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if err := h.store.DeletePost(postID); err != nil {
+		log.Printf("Delete post error: %v", err)
+		http.Error(w, "删除失败", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNoContent)
 }

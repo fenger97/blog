@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理员登录 - 我的博客</title>
+    <title>登录 - Fenger Journal</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,16 +11,21 @@
 </head>
 <body>
     <div class="container">
+        <!-- 头部区域 -->
         <header class="header">
             <div class="header-content">
-                <h1 class="site-title">我的博客</h1>
-                <p class="site-description">管理员登录</p>
+                <h1 class="site-title">
+                    <a href="/" class="home-link">Fenger Journal</a>
+                </h1>
+                <p class="site-description">分享我的想法和思考</p>
             </div>
         </header>
 
+        <!-- 登录表单 -->
         <main class="main-content">
             <div class="login-container">
                 <form id="loginForm" class="login-form">
+                    <h2>管理员登录</h2>
                     <div class="form-group">
                         <label for="username">用户名</label>
                         <input type="text" id="username" name="username" required placeholder="请输入用户名">
@@ -36,8 +41,9 @@
             </div>
         </main>
 
+        <!-- 页脚 -->
         <footer class="footer">
-            <p>&copy; 2024 我的博客. 用 Go 和 MongoDB 构建.</p>
+            <p>&copy; 2024 Fenger Journal · 用 Go 和 MongoDB 构建</p>
         </footer>
     </div>
     <script src="/static/js/login.js"></script>
