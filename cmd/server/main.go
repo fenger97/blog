@@ -160,7 +160,7 @@ func main() {
 
 	// 启动服务器
 	log.Printf("Server starting on :%s...", cfg.ServerPort)
-	if err := http.ListenAndServe(":"+cfg.ServerPort, nil); err != nil {
+	if err := http.ListenAndServe("127.0.0.1:"+cfg.ServerPort, nil); err != nil {
 		log.Fatal(err)
 	}
 }

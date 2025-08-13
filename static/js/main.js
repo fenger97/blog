@@ -225,11 +225,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h2>
                         <a href="/post/${post.id}" class="post-title-link">${post.title}</a>
                     </h2>
-                    <div class="post-meta">
-                        ${formatDate(post.created_at)}
-                    </div>
                     <div class="post-excerpt">
                         ${post.excerpt}
+                    </div>
+                    <div class="post-actions">
+                        <a href="/post/${post.id}" class="read-more-btn">Read more</a>
                     </div>
                 </article>
             `).join('');

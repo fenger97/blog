@@ -39,7 +39,6 @@ document.addEventListener('DOMContentLoaded', function() {
             postDetail.innerHTML = `
                 <header class="post-header">
                     <h1 class="post-title">${post.title}</h1>
-                    <div class="post-meta">${formatDate(post.created_at)}</div>
                     ${adminBar}
                 </header>
                 <div class="post-content" id="postContent">${post.html_content}</div>
