@@ -65,12 +65,26 @@ body {
     text-align: center;
 }
 
+.site-avatar {
+    text-align: center; /* 居中头像 */
+    margin-bottom: 3px; /* 和标题之间间距 */
+}
+
+.site-avatar img {
+    width: 50px;   /* 头像大小，可调 */
+    height: 50px;
+    border-radius: 50%; /* 圆形头像 */
+    object-fit: cover;  /* 图片按比例填充 */
+    box-shadow: none; /* 可选阴影 */
+}
+
 .site-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--primary-color);
+    font-size: 1.0rem;
+    font-weight: 50;
+    color: #555;
     margin-bottom: 8px;
-    letter-spacing: -0.02em;
+    letter-spacing: +0.15em;
+    margin: 0;
 }
 
 .site-description {
@@ -160,9 +174,9 @@ body {
     padding-bottom: 40px;
 }
 
-.post-card:last-child {
+/* .post-card:last-child {
     border-bottom: none;
-}
+} */
 
 .post-card:hover {
     box-shadow: none;
@@ -178,16 +192,10 @@ body {
     text-align: center;
 }
 
-.post-title-link {
-    color: var(--text-color);
+.post-card-link {
     text-decoration: none;
-    transition: color 0.2s ease;
-    border-bottom: 1px solid transparent;
-}
-
-.post-title-link:hover {
-    color: var(--link-color);
-    border-bottom: none;
+    color: inherit;
+    display: block; /* 让 a 占满整个区域 */
 }
 
 .post-meta {
@@ -208,14 +216,11 @@ body {
     max-width: 100%;
 }
 
-.post-actions {
+.read-more-btn {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 0;
-}
-
-.read-more-btn {
     background: transparent;
     color: var(--text-color);
     border: none;
@@ -593,7 +598,10 @@ body {
     }
     
     .site-title {
-        font-size: 2rem;
+        font-size: 1.1rem; /* 变小 */
+        font-weight: normal; /* 变淡，可以改成 500 或 lighter */
+        color: #555; /* 淡一点的灰色 */
+        margin: 0; /* 去掉默认外边距 */
     }
     
     .post-card h2 {
@@ -635,15 +643,3 @@ body {
     }
 } 
 
-.site-avatar {
-    text-align: center; /* 居中头像 */
-    margin-bottom: 1rem; /* 和标题之间间距 */
-}
-
-.site-avatar img {
-    width: 80px;   /* 头像大小，可调 */
-    height: 80px;
-    border-radius: 50%; /* 圆形头像 */
-    object-fit: cover;  /* 图片按比例填充 */
-    box-shadow: none; /* 可选阴影 */
-}

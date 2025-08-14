@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">文章详情 - Fenger Journal</title>
+    <title id="pageTitle">Fenger's Page</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,14 +14,14 @@
         <!-- 头部区域 -->
         <header class="header">
             <div class="header-content">
-                <!-- 头像 -->
-                <div class="site-avatar">
-                    <img src="/static/images/avatar-favicon.jpg" alt="Fenger" />
-                </div>
-                <h1 class="site-title">
-                    <a href="/" class="home-link">Fenger Journal</a>
-                </h1>
-                <!-- <p class="site-description">分享我的想法和思考</p> -->
+                <!-- 头像 + 标题整体可点击 -->
+                <a href="/" class="home-link site-brand">
+                    <div class="site-avatar">
+                        <img src="/static/images/avatar-favicon.jpg" alt="Fenger" />
+                    </div>
+                    <h1 class="site-title">Fenger's Page</h1>
+                    <!-- <p class="site-description">分享我的想法和思考</p> -->
+                </a>
             </div>
         </header>
 
@@ -31,11 +31,6 @@
                 <!-- 文章内容将通过 JavaScript 动态加载 -->
             </article>
         </main>
-
-        <!-- 页脚 -->
-        <footer class="footer">
-            <p>&copy; 2024 Fenger Journal · 用 Go 和 MongoDB 构建</p>
-        </footer>
     </div>
     <script src="/static/js/post.js"></script>
 </body>

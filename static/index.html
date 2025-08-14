@@ -3,25 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fenger Journal</title>
+    <title>Fenger's Page</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- 网页标签图标 -->
-    <link rel="icon" href="/static/images/avatar-favicon.jpg" type="image/jpg">
+    <link rel="icon" href="/static/images/f.png" type="image/png">
 </head>
 <body>
     <div class="container">
         <!-- 头部区域 -->
         <header class="header">
             <div class="header-content">
-                <!-- 头像 -->
-                <div class="site-avatar">
-                    <img src="/static/images/avatar-favicon.jpg" alt="Fenger" />
-                </div>
-                <h1 class="site-title"><a href="/" class="home-link">Fenger Journal</a></h1>
-                <!-- <p class="site-description">分享我的想法和思考</p> -->
+               <!-- 头像 + 标题整体可点击 -->
+                <a href="/" class="home-link site-brand">
+                    <div class="site-avatar">
+                        <img src="/static/images/avatar-favicon.jpg" alt="Fenger" />
+                    </div>
+                    <h1 class="site-title">Fenger's Page</h1>
+                    <!-- <p class="site-description">分享我的想法和思考</p> -->
+                </a>
                 <div class="admin-controls">
                     <button id="newPostBtn" class="btn btn-primary hidden">写新文章</button>
                     <button id="logoutBtn" class="btn btn-secondary hidden">退出登录</button>
@@ -71,11 +73,6 @@
                 <!-- 文章列表将通过 JavaScript 动态加载 -->
             </div>
         </main>
-
-        <!-- 页脚 -->
-        <footer class="footer">
-            <p>&copy; 2024 Fenger Journal · 用 Go 和 MongoDB 构建</p>
-        </footer>
     </div>
     <script src="/static/js/main.js"></script>
 </body>

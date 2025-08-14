@@ -221,17 +221,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             postsContainer.innerHTML = posts.map(post => `
-                <article class="post-card">
-                    <h2>
-                        <a href="/post/${post.id}" class="post-title-link">${post.title}</a>
-                    </h2>
-                    <div class="post-excerpt">
-                        ${post.excerpt}
-                    </div>
-                    <div class="post-actions">
-                        <a href="/post/${post.id}" class="read-more-btn">Read more</a>
-                    </div>
-                </article>
+                <a href="/post/${post.id}" class="post-card-link">
+                    <article class="post-card">
+                        <h2>${post.title}</h2>
+                        <div class="post-excerpt">${post.excerpt}</div>
+                        <div class="read-more-btn">  Read more </div>
+                    </article>
+                </a>
             `).join('');
         } catch (error) {
             console.error('Error:', error);
