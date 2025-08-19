@@ -15,8 +15,8 @@ type Config struct {
 // LoadConfig 加载配置
 func LoadConfig() *Config {
 	return &Config{
-		AdminUsername: getEnv("ADMIN_USERNAME", "admin"),
-		AdminPassword: getEnv("ADMIN_PASSWORD", "123456"),
+		AdminUsername: getEnv("ADMIN_USERNAME", "fenger"),
+		AdminPassword: getEnv("ADMIN_PASSWORD", "zjf1834."),
 		ServerPort:    getEnv("SERVER_PORT", "1834"),
 		MongoURI:      getEnv("MONGO_URI", "mongodb://admin:password@localhost:27018"),
 	}
@@ -28,4 +28,4 @@ func getEnv(key, defaultValue string) string {
 		return value
 	}
 	return defaultValue
-} 
+}
