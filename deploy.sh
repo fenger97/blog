@@ -23,7 +23,7 @@ if [ ! -f .env ]; then
     cp env.example .env
     echo "⚠️  请编辑 .env 文件，设置你的管理员密码"
     echo "   默认用户名: admin"
-    echo "   默认密码: your_secure_password_here"
+    echo "   默认密码: 123456"
 fi
 
 # 构建和启动服务
