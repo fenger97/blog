@@ -1,11 +1,6 @@
 # 运行阶段
 FROM alpine:latest
 
-# 安装 ca-certificates 用于 HTTPS 请求
-RUN apk --no-cache add ca-certificates
-
-
-
 # 创建非 root 用户
 RUN addgroup -g 1001 -S appgroup && \
     adduser -u 1001 -S appuser -G appgroup
@@ -30,4 +25,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:1834/ || exit 1
 
 # 启动应用
-CMD ["./main"] 
+CMD ["./blog-app"] 
