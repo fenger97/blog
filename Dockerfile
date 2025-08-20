@@ -11,6 +11,9 @@ WORKDIR /app
 # 从构建阶段复制二进制文件
 COPY ./blog-app /app/blog-app 
 
+# 设置可执行权限，并赋予 appuser 所有权
+RUN chmod +x ./blog-app && chown -R appuser:appgroup /app
+
 # 复制静态文件
 COPY ./static /app/static 
 
