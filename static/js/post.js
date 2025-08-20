@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             const post = await response.json();
             // 更新页面标题
-            pageTitle.textContent = `${post.title} - Fenger Journal`;
+            pageTitle.textContent = `${post.title} - Fenger's Page`;
 
             const adminBar = isLoggedIn ? `
                 <div class="admin-controls" style="justify-content:flex-start;margin:12px 0 0 0;gap:8px;">
