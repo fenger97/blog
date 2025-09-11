@@ -59,6 +59,9 @@ func main() {
 	http.HandleFunc("/logout", handlers.LogoutHandler)
 	http.HandleFunc("/status", handlers.StatusHandler)
 
+	// 公共订阅接口：/sub?token=xxxx
+	http.HandleFunc("/sub", handlers.SubscriptionHandler)
+
 	// 注册图片上传接口
 	http.HandleFunc("/upload/image", handlers.UploadImage)
 
