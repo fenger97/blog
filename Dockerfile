@@ -16,6 +16,7 @@ RUN chmod +x ./blog-app && chown -R appuser:appgroup /app
 
 # 复制静态文件
 COPY ./static /app/static 
+COPY ./vpn/vpn.txt /app/vpn/vpn.txt
 
 # 切换到非 root 用户
 USER appuser
