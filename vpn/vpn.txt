@@ -1,1 +1,2 @@
-vless://d1e3bfc0-ac1f-4020-a987-565a807f0368@fenger.xin:443?security=tls&flow=xtls-rprx-vision&type=tcp#MyNode
+vless://d1e3bfc0-ac1f-4020-a987-565a807f0368@fenger.xin:443?security=tls&flow=xtls-rprx-vision&type=tcp#新加坡
+vless://d1e3bfc0-ac1f-4020-a987-565a807f0368@us.fenger.xin:443?security=tls&flow=xtls-rprx-vision&type=tcp#m美国
