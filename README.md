@@ -330,6 +330,12 @@ SERVER_PORT=1834
 MONGO_URI=mongodb://admin:password@mongodb:27017
 ```
 
+#### 本地编译命令
+```bash
+docker build -f Dockerfile.build -t blog-app-builder .  --no-cache
+docker run --rm -v $(pwd):/output blog-app-builder sh -c "CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o blog-app ./cmd/server && cp blog-app /output"
+```
+
 ### 生产环境建议
 - 使用 HTTPS 协议
 - 配置 MongoDB 认证
