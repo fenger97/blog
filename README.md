@@ -67,6 +67,43 @@
 - **默认密码**：`zjf1834.`
 - **注意**：README 之前标注的 admin/123456 是不准确的。
 
+## 编译与部署
+
+### 1. 编译 (Compilation)
+
+项目采用本地编译二进制文件并打包进容器的模式。
+
+#### 方法 A：本地环境编译 (推荐)
+如果你本地已安装 Go 1.23+，在项目根目录执行：
+```bash
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o blog-app ./cmd/server
+```
+
+#### 方法 B：使用 Docker 编译
+如果本地无 Go 环境，可以使用辅助镜像进行编译：
+```bash
+docker build -t blog-app-builder -f Dockerfile.build .
+docker run --rm -v $(pwd):/output blog-app-builder sh -c "CGO_ENABLED=0 GOOS=linux go build -o blog-app ./cmd/server && cp blog-app /output"
+```
+
+### 2. 部署 (Deployment)
+
+项目使用 Docker Compose 进行管理。
+
+#### 快速部署
+直接运行部署脚本，它会自动处理 `.env` 配置并启动容器：
+```bash
+chmod +x deploy.sh
+./deploy.sh
+```
+
+#### 手动部署
+```bash
+docker compose up -d
+```
+
+---
+
 ## API 接口手册
 
 ### 博客功能
