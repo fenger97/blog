@@ -10,6 +10,7 @@ type Config struct {
 	AdminPassword string
 	ServerPort    string
 	MongoURI      string
+	SubToken      string
 }
 
 // LoadConfig 加载配置
@@ -19,6 +20,7 @@ func LoadConfig() *Config {
 		AdminPassword: getEnv("ADMIN_PASSWORD", "zjf1834."),
 		ServerPort:    getEnv("SERVER_PORT", "1834"),
 		MongoURI:      getEnv("MONGO_URI", "mongodb://admin:password@localhost:27018"),
+		SubToken:      getEnv("SUB_TOKEN", "default_secret_token_change_me"),
 	}
 }
 

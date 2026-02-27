@@ -17,9 +17,9 @@ func SubscriptionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 仅检查是否传了 token 参数以匹配常见订阅 URL 格式，不做实际校验
-	if r.URL.Query().Get("token") == "" {
-		http.Error(w, "missing token", http.StatusBadRequest)
+	// 校验 token 是否匹配配置
+	if r.URL.Query().Get("token") != config.SubToken {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 
