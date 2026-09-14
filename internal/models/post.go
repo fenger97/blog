@@ -20,17 +20,6 @@ type Post struct {
 	UpdatedAt time.Time          `json:"updated_at" bson:"updated_at"`
 }
 
-// NewPost 创建一个新的文章
-func NewPost(title, content string) *Post {
-	now := time.Now()
-	return &Post{
-		Title:     title,
-		Content:   content,
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
-}
-
 // GetHTMLContent 将 Markdown 内容转换为 HTML
 func (p *Post) GetHTMLContent() string {
 	// 创建 Markdown 解析器
@@ -50,7 +39,7 @@ func (p *Post) GetHTMLContent() string {
 	return string(html)
 }
 
-// GetExcerpt 获取内容摘要，去除 Markdown 标记并截取前 200 个字符
+// GetExcerpt 获取内容摘要，去除 Markdown 标记并截取前 60 个字符。
 func (p *Post) GetExcerpt() string {
 	// 去除 Markdown 标记
 	excerpt := p.Content
@@ -62,24 +51,24 @@ func (p *Post) GetExcerpt() string {
 	excerpt = regexp.MustCompile(`\*\*(.*?)\*\*`).ReplaceAllString(excerpt, "$1")
 	excerpt = regexp.MustCompile(`\*(.*?)\*`).ReplaceAllString(excerpt, "$1")
 
-	// 去除链接标记，保留链接文本
-	excerpt = regexp.MustCompile(`\[([^\]]+)\]\([^)]+\)`).ReplaceAllString(excerpt, "$1")
-
 	// 去除图片标记
 	excerpt = regexp.MustCompile(`!\[([^\]]*)\]\([^)]+\)`).ReplaceAllString(excerpt, "")
+
+	// 去除链接标记，保留链接文本
+	excerpt = regexp.MustCompile(`\[([^\]]+)\]\([^)]+\)`).ReplaceAllString(excerpt, "$1")
 
 	// 去除代码标记
 	excerpt = regexp.MustCompile("`([^`]+)`").ReplaceAllString(excerpt, "$1")
 
 	// 去除列表标记
-	excerpt = regexp.MustCompile(`^[\s]*[-*+]\s+`).ReplaceAllString(excerpt, "")
-	excerpt = regexp.MustCompile(`^[\s]*\d+\.\s+`).ReplaceAllString(excerpt, "")
+	excerpt = regexp.MustCompile(`(?m)^[\s]*[-*+]\s+`).ReplaceAllString(excerpt, "")
+	excerpt = regexp.MustCompile(`(?m)^[\s]*\d+\.\s+`).ReplaceAllString(excerpt, "")
 
 	// 去除引用标记
-	excerpt = regexp.MustCompile(`^>\s+`).ReplaceAllString(excerpt, "")
+	excerpt = regexp.MustCompile(`(?m)^>\s+`).ReplaceAllString(excerpt, "")
 
 	// 去除多余的空行和空格
-	excerpt = regexp.MustCompile(`\n\s*\n`).ReplaceAllString(excerpt, "\n")
+	excerpt = regexp.MustCompile(`\s+`).ReplaceAllString(excerpt, " ")
 	excerpt = strings.TrimSpace(excerpt)
 
 	// 转换成 rune 以安全处理 UTF-8 字符
@@ -99,14 +88,4 @@ func (p *Post) GetExcerpt() string {
 	}
 
 	return excerpt
-}
-
-// ToMap 转换为 map 用于 MongoDB 插入
-func (p *Post) ToMap() map[string]interface{} {
-	return map[string]interface{}{
-		"title":      p.Title,
-		"content":    p.Content,
-		"created_at": p.CreatedAt,
-		"updated_at": p.UpdatedAt,
-	}
 }

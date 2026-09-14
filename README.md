@@ -1,144 +1,115 @@
-# Fenger Journal
+# Fenger's Page
 
-这是一个使用 Go 语言开发的极简博客系统，采用类似 Jason Fried 博客的简洁设计风格。除了博客功能外，该项目还包含一个隐藏的 VPN 节点订阅服务。
+一个只读的个人文章展示服务。它从 MongoDB 读取已有文章，在首页展示摘要，并在详情页将 Markdown 渲染为 HTML。
 
-## 功能特性
-
-- **极简设计风格**：采用 Inter 字体，黑白主色调，大量留白。
-- **智能文章摘要**：首页显示文章摘要，自动去除 Markdown 标记。
-- **文章详情页面**：支持完整内容展示和图片。
-- **管理功能**：包含管理员登录、文章创建、**编辑**和**删除**功能。
-- **Markdown 支持**：完整的解析和预览功能。
-- **MongoDB 存储**：数据持久化，性能优异。
-- **图片上传**：支持本地存储和展示。
-- **隐藏功能**：内置 **VLESS/Clash 订阅转换接口**。
+服务不提供登录、发布、编辑、删除、图片上传或订阅功能。文章需要通过站点外部的数据库维护流程更新。
 
 ## 技术栈
 
-### 后端
-- **Go 1.23.0+**
-- 标准库 `net/http` 用于 HTTP 服务
-- **MongoDB** 用于数据持久化
-- `github.com/gomarkdown/markdown` 用于 Markdown 解析
-- `go.mongodb.org/mongo-driver` 用于 MongoDB 驱动
-
-### 前端
-- 原生 HTML5 / CSS3 / JavaScript (ES6+)
-- **Inter 字体**：现代无衬线字体
-- 响应式设计，适配桌面端和移动端
+- Go 1.23+
+- 标准库 `net/http`
+- MongoDB
+- `github.com/gomarkdown/markdown`
+- 原生 HTML、CSS 和 JavaScript
 
 ## 项目结构
 
 ```
 .
-├── cmd/                    # 主程序入口
-│   └── server/            # 服务器入口
-│       └── main.go        # 主逻辑与路由
-├── internal/              # 内部包
-│   ├── database/         # MongoDB 连接管理
-│   ├── handlers/         # 处理器 (auth, post, upload, vpn)
-│   ├── models/           # 数据模型 (Post, MongoStore)
-├── vpn/                    # VPN 节点配置文件 [隐藏]
-│   ├── vpn.txt           # VLESS 原始链接
-│   └── clash.txt         # Clash 配置文件
-├── static/               # 静态文件
-│   ├── css/             # 极简样式
-│   ├── js/              # 前端交互逻辑
-│   └── uploads/         # 用户上传的图片
-├── configs/              # 应用配置 (config.go)
-├── docker-compose.yml   # Docker 部署配置
-└── README.md            # 项目说明
+├── cmd/server/          # 服务入口与只读路由
+├── configs/             # 运行配置
+├── internal/
+│   ├── database/        # MongoDB 连接
+│   ├── handlers/        # 文章读取接口
+│   └── models/          # 文章模型与只读存储
+├── static/              # 页面、样式、脚本与图片
+├── env.example          # 环境变量示例
+└── README.md
 ```
 
-## 快速开始
+## 配置
 
-### 环境要求
-- Go 1.23.0+
-- MongoDB 4.4+ (或通过 Docker 运行)
+| 变量 | 默认值 | 说明 |
+| --- | --- | --- |
+| `SERVER_ADDR` | `127.0.0.1:8080` | 服务监听地址 |
+| `SERVER_PORT` | `8080` | 未设置 `SERVER_ADDR` 时使用的端口 |
+| `MONGO_URI` | `mongodb://127.0.0.1:27017` | MongoDB 连接地址 |
 
-### 本地运行
-1. **启动 MongoDB**：使用 `docker compose up -d mongodb`。
-2. **连接配置**：在 `configs/config.go` 或环境变量中检查配置。
-3. **运行**：`go run cmd/server/main.go`。
-4. **访问**：`http://localhost:1834`。
+生产环境应使用仅有 `read` 权限的 MongoDB 账户，并通过系统环境文件传入 `MONGO_URI`。不要提交 `.env` 或任何数据库凭据。
 
-### 管理员登录
-- **默认用户名**：`fenger`
-- **默认密码**：`zjf1834.`
-- **注意**：README 之前标注的 admin/123456 是不准确的。
+## 本地运行
 
-## 编译与部署
+1. 启动 MongoDB。
+2. 在仓库根目录设置环境变量，例如 `MONGO_URI`。
+3. 执行 `go run ./cmd/server`。
+4. 访问 `http://127.0.0.1:8080`。
 
-### 1. 编译 (Compilation)
+服务会按相对路径读取 `static/`，因此必须从仓库根目录启动。
 
-项目采用本地编译二进制文件并打包进容器的模式。
+## 生产部署
 
-#### 方法 A：本地环境编译 (推荐)
-如果你本地已安装 Go 1.23+，在项目根目录执行：
+生产环境使用以下结构：
+
+```
+Nginx (443) -> systemd service (127.0.0.1:8080) -> MongoDB container (127.0.0.1:27017)
+```
+
+- 服务直接运行 Linux 二进制文件，不放入容器。
+- MongoDB 使用 Docker 持久卷，并只映射到本机回环地址。
+- Nginx 只监听 `443`；`fenger.xin` 为规范域名，`www.fenger.xin` 重定向到主域名。
+- TLS 证书使用 acme.sh 的 TLS-ALPN 校验签发和续期，因此无需开放 `80`。
+
+编译 Linux 二进制：
+
 ```bash
-CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o blog-app ./cmd/server
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o fenger-service ./cmd/server
 ```
 
-#### 方法 B：使用 Docker 编译
-如果本地无 Go 环境，可以使用辅助镜像进行编译：
+建议使用类似以下的 systemd 单元：
+
+```ini
+[Unit]
+Description=Fenger Service
+After=network-online.target docker.service
+Requires=docker.service
+
+[Service]
+User=fenger
+Group=fenger
+WorkingDirectory=/opt/fenger-service
+EnvironmentFile=/etc/fenger-service/service.env
+ExecStart=/opt/fenger-service/fenger-service
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+`/etc/fenger-service/service.env` 至少应包含：
+
+```ini
+SERVER_ADDR=127.0.0.1:8080
+MONGO_URI=mongodb://service_reader:replace_me@127.0.0.1:27017/blog?authSource=blog
+```
+
+## 接口
+
+- `GET /`：文章列表页面
+- `GET /post/{id}`：文章详情页面
+- `GET /posts`：文章摘要 JSON
+- `GET /api/post?id={id}`：渲染后的文章详情 JSON
+- `GET /static/*`：静态资源
+
+以上路由只接受 `GET` 和 `HEAD` 请求。其他方法返回 `405 Method Not Allowed`；旧的 `/login`、`/logout`、`/status`、`/upload/image` 和 `/sub` 返回 `404 Not Found`。
+
+## 验证
+
 ```bash
-docker build -t blog-app-builder -f Dockerfile.build .
-docker run --rm -v $(pwd):/output blog-app-builder sh -c "CGO_ENABLED=0 GOOS=linux go build -o blog-app ./cmd/server && cp blog-app /output"
+go test ./...
+go vet ./...
 ```
-
-### 2. 部署 (Deployment)
-
-项目使用 Docker Compose 进行管理。
-
-#### 快速部署
-直接运行部署脚本，它会自动处理 `.env` 配置并启动容器：
-```bash
-chmod +x deploy.sh
-./deploy.sh
-```
-
-#### 手动部署
-```bash
-docker compose up -d
-```
-
----
-
-## API 接口手册
-
-### 博客功能
-- `GET /posts`：获取所有文章摘要。
-- `GET /post/{id}`：获取文章详情。
-- `POST /posts`：创建新文章（需登录）。
-- `PUT /post/{id}`：更新文章内容（需登录）。
-- `DELETE /post/{id}`：删除文章（需登录）。
-- `POST /upload/image`：上传图片。
-
-### 隐藏订阅功能 (/sub)
-该接口用于分发 VPN 节点信息，模拟常见的订阅格式。
-- **接口地址**：`/sub?token=xxxx&format={base64|clash}`
-- **参数说明**：
-    - `token`：必须提供（目前代码中仅检查是否存在，未做值校验）。
-    - `format`：默认为 `base64`。
-        - `base64`：返回 `vpn/vpn.txt` 加密后的内容。
-        - `clash`：返回 `vpn/clash.txt` 的原始 YAML 内容。
-
-> [!CAUTION]
-> **安全警告**：项目的 `/sub` 接口目前存在安全风险。虽然 URL 包含 token 参数，但服务器端并未进行有效性验证。任何知道该接口的人都可以轻易获取您的节点信息。
-
-## 开发计划 (路线图)
-
-- [x] 用户认证与权限控制
-- [x] Markdown 格式渲染
-- [x] MongoDB 数据持久化
-- [x] **文章编辑与更新功能** (已完成)
-- [x] **文章删除功能** (已完成)
-- [x] 图片上传与展示
-- [x] 跨平台 Docker 部署
-- [ ] 文章分类与搜索
-- [ ] 评论系统
-- [ ] RSS/邮件订阅
-- [ ] **增强 `/sub` 接口的 Token 校验**
 
 ## 许可证
+
 MIT License

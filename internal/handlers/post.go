@@ -7,70 +7,66 @@ import (
 	"time"
 
 	"blog/internal/models"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// PostHandler 处理文章相关的请求
-type PostHandler struct {
-	store *models.MongoStore
+// PostReader provides the data required by the public article endpoints.
+type PostReader interface {
+	GetPost(id string) (*models.Post, error)
+	GetAllPosts() ([]*models.Post, error)
 }
 
-// NewPostHandler 创建一个新的文章处理器
-func NewPostHandler(store *models.MongoStore) *PostHandler {
+// PostHandler handles read-only article requests.
+type PostHandler struct {
+	store PostReader
+}
+
+// NewPostHandler creates a public article handler.
+func NewPostHandler(store PostReader) *PostHandler {
 	return &PostHandler{store: store}
 }
 
-// CreatePost 处理创建文章的请求
-func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+// GetPost returns a rendered article.
+func (h *PostHandler) GetPost(w http.ResponseWriter, postID string) {
+	if !primitive.IsValidObjectID(postID) {
+		http.Error(w, "Invalid post ID", http.StatusBadRequest)
 		return
 	}
 
-	var post models.Post
-	if err := json.NewDecoder(r.Body).Decode(&post); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	id, err := h.store.CreatePost(&post)
-	if err != nil {
-		http.Error(w, "Failed to create post", http.StatusInternalServerError)
-		return
-	}
-
-	post.ID = id
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(post)
-}
-
-// GetPost 获取单篇文章
-func (h *PostHandler) GetPost(w http.ResponseWriter, r *http.Request, postID string) {
 	post, err := h.store.GetPost(postID)
-	if err != nil || post == nil {
+	if err != nil {
 		log.Printf("Error getting post: %v", err)
+		http.Error(w, "获取文章失败", http.StatusInternalServerError)
+		return
+	}
+	if post == nil {
 		http.Error(w, "文章不存在", http.StatusNotFound)
 		return
 	}
 
-	// 返回包含完整 HTML 内容的文章
-	type PostWithHTML struct {
-		*models.Post
-		HTMLContent string `json:"html_content"`
+	type postDetail struct {
+		ID          string    `json:"id"`
+		Title       string    `json:"title"`
+		HTMLContent string    `json:"html_content"`
+		CreatedAt   time.Time `json:"created_at"`
+		UpdatedAt   time.Time `json:"updated_at"`
 	}
 
-	postWithHTML := PostWithHTML{
-		Post:        post,
+	detail := postDetail{
+		ID:          post.ID.Hex(),
+		Title:       post.Title,
 		HTMLContent: post.GetHTMLContent(),
+		CreatedAt:   post.CreatedAt,
+		UpdatedAt:   post.UpdatedAt,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(postWithHTML)
+	json.NewEncoder(w).Encode(detail)
 }
 
-// GetAllPosts 获取所有文章
-func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
+// GetAllPosts returns article summaries in reverse creation order.
+func (h *PostHandler) GetAllPosts(w http.ResponseWriter, _ *http.Request) {
 	posts, err := h.store.GetAllPosts()
 	if err != nil {
 		log.Printf("Error finding posts: %v", err)
@@ -78,17 +74,16 @@ func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 转换为包含摘要的响应格式
-	type PostSummary struct {
+	type postSummary struct {
 		ID        string    `json:"id"`
 		Title     string    `json:"title"`
 		Excerpt   string    `json:"excerpt"`
 		CreatedAt time.Time `json:"created_at"`
 	}
 
-	postSummaries := make([]PostSummary, len(posts))
+	summaries := make([]postSummary, len(posts))
 	for i, post := range posts {
-		postSummaries[i] = PostSummary{
+		summaries[i] = postSummary{
 			ID:        post.ID.Hex(),
 			Title:     post.Title,
 			Excerpt:   post.GetExcerpt(),
@@ -97,47 +92,5 @@ func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(postSummaries)
-}
-
-// UpdatePost 更新文章
-func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request, postID string) {
-	if r.Method != http.MethodPut {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	var body struct {
-		Title   string `json:"title"`
-		Content string `json:"content"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
-		return
-	}
-
-	p := &models.Post{Title: body.Title, Content: body.Content}
-	if err := h.store.UpdatePost(postID, p); err != nil {
-		log.Printf("Update post error: %v", err)
-		http.Error(w, "更新失败", http.StatusInternalServerError)
-		return
-	}
-
-	// 返回最新内容
-	h.GetPost(w, r, postID)
-}
-
-// DeletePost 删除文章
-func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request, postID string) {
-	if r.Method != http.MethodDelete {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	if err := h.store.DeletePost(postID); err != nil {
-		log.Printf("Delete post error: %v", err)
-		http.Error(w, "删除失败", http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusNoContent)
+	json.NewEncoder(w).Encode(summaries)
 }

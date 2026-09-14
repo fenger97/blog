@@ -6,21 +6,17 @@ import (
 
 // Config 应用配置
 type Config struct {
-	AdminUsername string
-	AdminPassword string
-	ServerPort    string
-	MongoURI      string
-	SubToken      string
+	ServerAddr string
+	MongoURI   string
 }
 
 // LoadConfig 加载配置
 func LoadConfig() *Config {
+	serverPort := getEnv("SERVER_PORT", "8080")
+
 	return &Config{
-		AdminUsername: getEnv("ADMIN_USERNAME", "fenger"),
-		AdminPassword: getEnv("ADMIN_PASSWORD", "zjf1834."),
-		ServerPort:    getEnv("SERVER_PORT", "1834"),
-		MongoURI:      getEnv("MONGO_URI", "mongodb://admin:password@localhost:27018"),
-		SubToken:      getEnv("SUB_TOKEN", "default_secret_token_change_me"),
+		ServerAddr: getEnv("SERVER_ADDR", "127.0.0.1:"+serverPort),
+		MongoURI:   getEnv("MONGO_URI", "mongodb://127.0.0.1:27017"),
 	}
 }
 
