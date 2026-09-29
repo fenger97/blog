@@ -22,7 +22,7 @@ func (emptyPostReader) GetAllPosts() ([]*models.Post, error) {
 func TestRouterRejectsWriteMethods(t *testing.T) {
 	router := newRouter(handlers.NewPostHandler(emptyPostReader{}))
 
-	for _, path := range []string{"/", "/posts", "/post/507f1f77bcf86cd799439011", "/api/post?id=507f1f77bcf86cd799439011", "/static/css/style.css"} {
+	for _, path := range []string{"/", "/posts", "/post/hello-world", "/api/post?id=hello-world", "/static/css/style.css"} {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, httptest.NewRequest(http.MethodPost, path, nil))
 

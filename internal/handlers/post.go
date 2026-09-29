@@ -7,8 +7,6 @@ import (
 	"time"
 
 	"blog/internal/models"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // PostReader provides the data required by the public article endpoints.
@@ -29,7 +27,7 @@ func NewPostHandler(store PostReader) *PostHandler {
 
 // GetPost returns a rendered article.
 func (h *PostHandler) GetPost(w http.ResponseWriter, postID string) {
-	if !primitive.IsValidObjectID(postID) {
+	if !models.IsValidSlug(postID) {
 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
 		return
 	}
@@ -54,7 +52,7 @@ func (h *PostHandler) GetPost(w http.ResponseWriter, postID string) {
 	}
 
 	detail := postDetail{
-		ID:          post.ID.Hex(),
+		ID:          post.ID,
 		Title:       post.Title,
 		HTMLContent: post.GetHTMLContent(),
 		CreatedAt:   post.CreatedAt,
@@ -84,7 +82,7 @@ func (h *PostHandler) GetAllPosts(w http.ResponseWriter, _ *http.Request) {
 	summaries := make([]postSummary, len(posts))
 	for i, post := range posts {
 		summaries[i] = postSummary{
-			ID:        post.ID.Hex(),
+			ID:        post.ID,
 			Title:     post.Title,
 			Excerpt:   post.GetExcerpt(),
 			CreatedAt: post.CreatedAt,

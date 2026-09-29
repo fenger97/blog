@@ -9,20 +9,20 @@ import (
 	"syscall"
 
 	"blog/configs"
-	"blog/internal/database"
+	"blog/internal/content"
 	"blog/internal/handlers"
-	"blog/internal/models"
 )
 
 func main() {
 	cfg := configs.LoadConfig()
 
-	if err := database.ConnectMongoDB(); err != nil {
-		log.Fatal("Failed to connect to MongoDB:", err)
-	}
-	defer database.CloseMongoDB()
-
-	postHandler := handlers.NewPostHandler(models.NewMongoStore())
+	postStore := content.NewGitHubStore(content.Config{
+		IndexURL:  cfg.ContentIndexURL,
+		BaseURL:   cfg.ContentBaseURL,
+		CacheTTL:  cfg.ContentCacheTTL,
+		AuthToken: cfg.GitHubToken,
+	})
+	postHandler := handlers.NewPostHandler(postStore)
 	router := newRouter(postHandler)
 
 	go func() {
@@ -30,7 +30,6 @@ func main() {
 		signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 		<-sigChan
 		log.Println("Shutting down server...")
-		database.CloseMongoDB()
 		os.Exit(0)
 	}()
 

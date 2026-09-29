@@ -10,8 +10,6 @@ import (
 	"time"
 
 	"blog/internal/models"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type fakePostReader struct {
@@ -33,7 +31,7 @@ func (f *fakePostReader) GetAllPosts() ([]*models.Post, error) {
 
 func TestGetPostReturnsRenderedDetail(t *testing.T) {
 	post := &models.Post{
-		ID:        primitive.NewObjectID(),
+		ID:        "hello-world",
 		Title:     "Hello",
 		Content:   "# Heading\n\n**content**",
 		CreatedAt: time.Date(2026, 9, 10, 0, 0, 0, 0, time.UTC),
@@ -41,7 +39,7 @@ func TestGetPostReturnsRenderedDetail(t *testing.T) {
 	handler := NewPostHandler(&fakePostReader{post: post})
 	recorder := httptest.NewRecorder()
 
-	handler.GetPost(recorder, post.ID.Hex())
+	handler.GetPost(recorder, post.ID)
 
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
@@ -51,7 +49,7 @@ func TestGetPostReturnsRenderedDetail(t *testing.T) {
 	if err := json.NewDecoder(recorder.Body).Decode(&response); err != nil {
 		t.Fatalf("decode response: %v", err)
 	}
-	if response["id"] != post.ID.Hex() || response["title"] != post.Title {
+	if response["id"] != post.ID || response["title"] != post.Title {
 		t.Fatalf("unexpected response: %#v", response)
 	}
 	if _, ok := response["content"]; ok {
@@ -63,7 +61,7 @@ func TestGetPostReturnsRenderedDetail(t *testing.T) {
 }
 
 func TestGetPostValidatesAndHandlesErrors(t *testing.T) {
-	validID := primitive.NewObjectID().Hex()
+	validSlug := "hello-world"
 	tests := []struct {
 		name      string
 		id        string
@@ -71,9 +69,9 @@ func TestGetPostValidatesAndHandlesErrors(t *testing.T) {
 		wantCode  int
 		wantCalls int
 	}{
-		{name: "invalid ID", id: "invalid", store: &fakePostReader{}, wantCode: http.StatusBadRequest},
-		{name: "missing post", id: validID, store: &fakePostReader{}, wantCode: http.StatusNotFound, wantCalls: 1},
-		{name: "store error", id: validID, store: &fakePostReader{getErr: errors.New("database unavailable")}, wantCode: http.StatusInternalServerError, wantCalls: 1},
+		{name: "invalid slug", id: "../secret", store: &fakePostReader{}, wantCode: http.StatusBadRequest},
+		{name: "missing post", id: validSlug, store: &fakePostReader{}, wantCode: http.StatusNotFound, wantCalls: 1},
+		{name: "store error", id: validSlug, store: &fakePostReader{getErr: errors.New("content source unavailable")}, wantCode: http.StatusInternalServerError, wantCalls: 1},
 	}
 
 	for _, test := range tests {
@@ -93,9 +91,9 @@ func TestGetPostValidatesAndHandlesErrors(t *testing.T) {
 
 func TestGetAllPostsReturnsSummaries(t *testing.T) {
 	post := &models.Post{
-		ID:        primitive.NewObjectID(),
+		ID:        "hello-world",
 		Title:     "Summary",
-		Content:   "A short article",
+		Excerpt:   "A short article",
 		CreatedAt: time.Date(2026, 9, 10, 0, 0, 0, 0, time.UTC),
 	}
 	handler := NewPostHandler(&fakePostReader{posts: []*models.Post{post}})
@@ -111,13 +109,13 @@ func TestGetAllPostsReturnsSummaries(t *testing.T) {
 	if err := json.NewDecoder(recorder.Body).Decode(&response); err != nil {
 		t.Fatalf("decode response: %v", err)
 	}
-	if len(response) != 1 || response[0]["title"] != post.Title || response[0]["excerpt"] != post.Content {
+	if len(response) != 1 || response[0]["title"] != post.Title || response[0]["excerpt"] != post.Excerpt {
 		t.Fatalf("unexpected response: %#v", response)
 	}
 }
 
 func TestGetAllPostsReturnsServerError(t *testing.T) {
-	handler := NewPostHandler(&fakePostReader{listErr: errors.New("database unavailable")})
+	handler := NewPostHandler(&fakePostReader{listErr: errors.New("content source unavailable")})
 	recorder := httptest.NewRecorder()
 
 	handler.GetAllPosts(recorder, httptest.NewRequest(http.MethodGet, "/posts", nil))

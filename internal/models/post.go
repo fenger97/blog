@@ -8,16 +8,23 @@ import (
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+var slugPattern = regexp.MustCompile(`^[a-z0-9](?:[a-z0-9_-]{0,118}[a-z0-9])?$`)
+
+// IsValidSlug reports whether a content slug is safe to use as an article ID.
+func IsValidSlug(slug string) bool {
+	return slugPattern.MatchString(slug)
+}
 
 // Post 表示一篇博客文章
 type Post struct {
-	ID        primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-	Title     string             `json:"title" bson:"title"`
-	Content   string             `json:"content" bson:"content"`
-	CreatedAt time.Time          `json:"created_at" bson:"created_at"`
-	UpdatedAt time.Time          `json:"updated_at" bson:"updated_at"`
+	ID        string    `json:"id"`
+	Title     string    `json:"title"`
+	Excerpt   string    `json:"-"`
+	Content   string    `json:"-"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // GetHTMLContent 将 Markdown 内容转换为 HTML
@@ -41,6 +48,10 @@ func (p *Post) GetHTMLContent() string {
 
 // GetExcerpt 获取内容摘要，去除 Markdown 标记并截取前 60 个字符。
 func (p *Post) GetExcerpt() string {
+	if p.Excerpt != "" {
+		return p.Excerpt
+	}
+
 	// 去除 Markdown 标记
 	excerpt := p.Content
 
