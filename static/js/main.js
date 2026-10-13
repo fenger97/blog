@@ -1,65 +1,63 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const postsContainer = document.getElementById('posts');
+/* The pages are complete without JavaScript. These are navigation enhancements. */
+(() => {
+    'use strict';
 
-    loadPosts();
+    const indicator = document.querySelector('.loading-indicator');
 
-    async function loadPosts() {
-        try {
-            const response = await fetch('/posts');
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const posts = await response.json();
-            if (posts.length === 0) {
-                postsContainer.replaceChildren(createEmptyState());
-                return;
-            }
-
-            const fragment = document.createDocumentFragment();
-            posts.forEach(post => fragment.appendChild(createPostCard(post)));
-            postsContainer.replaceChildren(fragment);
-        } catch (error) {
-            console.error('Failed to load posts:', error);
-            postsContainer.replaceChildren(createMessage('加载文章失败，请刷新页面重试', 'error-state'));
+    function beginNavigation(message) {
+        document.body.classList.add('is-loading');
+        if (indicator) {
+            indicator.textContent = message || '正在打开页面…';
+            indicator.hidden = false;
         }
     }
 
-    function createPostCard(post) {
-        const link = document.createElement('a');
-        link.className = 'post-card-link';
-        link.href = `/post/${encodeURIComponent(post.id)}`;
-
-        const article = document.createElement('article');
-        article.className = 'post-card';
-
-        const title = document.createElement('h2');
-        title.textContent = post.title;
-
-        const excerpt = document.createElement('p');
-        excerpt.className = 'post-excerpt';
-        excerpt.textContent = post.excerpt;
-
-        const readMore = document.createElement('span');
-        readMore.className = 'read-more';
-        readMore.textContent = 'Read more';
-
-        article.append(title, excerpt, readMore);
-        link.appendChild(article);
-        return link;
+    function resetNavigation() {
+        document.body.classList.remove('is-loading');
+        if (indicator) indicator.hidden = true;
+        document.querySelectorAll('[aria-busy="true"]').forEach(element => {
+            element.removeAttribute('aria-busy');
+            if (element.dataset.originalLabel) {
+                element.textContent = element.dataset.originalLabel;
+                delete element.dataset.originalLabel;
+            }
+        });
     }
 
-    function createEmptyState() {
-        return createMessage('暂无文章', 'empty-state');
-    }
+    document.addEventListener('click', event => {
+        if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        const link = event.target.closest('a[href]');
+        if (!link || link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
+        const destination = new URL(link.href, window.location.href);
+        if (destination.origin !== window.location.origin) return;
+        if (destination.pathname === window.location.pathname && destination.search === window.location.search && destination.hash) return;
+        beginNavigation();
+    });
 
-    function createMessage(text, className) {
-        const state = document.createElement('div');
-        state.className = className;
+    document.querySelectorAll('[data-loading-form]').forEach(form => {
+        form.addEventListener('submit', event => {
+            if (event.defaultPrevented) return;
+            form.setAttribute('aria-busy', 'true');
+            form.querySelectorAll('[data-loading-label]').forEach(button => {
+                button.dataset.originalLabel = button.textContent;
+                button.textContent = button.dataset.loadingLabel;
+                button.setAttribute('aria-busy', 'true');
+            });
+            beginNavigation('正在查找文章…');
+        });
+    });
 
-        const message = document.createElement('p');
-        message.textContent = text;
-        state.appendChild(message);
-        return state;
-    }
-});
+    document.querySelectorAll('[data-retry]').forEach(button => {
+        button.hidden = false;
+        button.addEventListener('click', () => {
+            button.dataset.originalLabel = button.textContent;
+            button.textContent = '正在重试…';
+            button.setAttribute('aria-busy', 'true');
+            beginNavigation('正在重新加载页面…');
+            window.location.reload();
+        });
+    });
+
+    // Browsers may restore this DOM from their back/forward cache.
+    window.addEventListener('pageshow', resetNavigation);
+})();

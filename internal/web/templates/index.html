@@ -1,0 +1,74 @@
+{{define "index"}}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>{{template "head" .}}</head>
+<body>
+<div class="container">
+    {{template "header" .}}
+    <main id="main-content" class="main-content" tabindex="-1">
+        <div class="page-intro">
+            <h1>文章</h1>
+            <p>旅行、日常与一些想法。</p>
+        </div>
+        <form class="filters" method="get" action="/" role="search" data-loading-form>
+            <div class="filter-search">
+                <label class="sr-only" for="search-query">搜索文章</label>
+                <input id="search-query" type="search" name="q" value="{{.Query}}" placeholder="搜索标题或摘要" maxlength="200" autocomplete="off">
+                <button class="button" type="submit" data-loading-label="正在查找…">查找</button>
+            </div>
+            <div class="filter-selects">
+                <label for="filter-tag">标签
+                    <select id="filter-tag" name="tag">
+                        <option value="">全部标签</option>
+                        {{range .Tags}}<option value="{{.Name}}"{{if eq $.SelectedTag .Name}} selected{{end}}>{{.Name}} · {{.Count}}</option>{{end}}
+                    </select>
+                </label>
+                <label for="filter-year">年份
+                    <select id="filter-year" name="year">
+                        <option value="">全部年份</option>
+                        {{range .Years}}<option value="{{.Year}}"{{if eq $.SelectedYear .Year}} selected{{end}}>{{.Year}} · {{.Count}}</option>{{end}}
+                    </select>
+                </label>
+            </div>
+        </form>
+        <div class="results-bar">
+            <p>共 {{.Total}} 篇{{if or .Query .SelectedTag .SelectedYear}}匹配文章{{else}}文章{{end}}{{if gt .PageCount 1}} · 第 {{.Page}} / {{.PageCount}} 页{{end}}</p>
+            {{if or .Query .SelectedTag .SelectedYear}}<a class="clear-filters" href="/">清除筛选</a>{{end}}
+        </div>
+        <section class="posts" aria-label="文章列表">
+            {{range .Posts}}
+            <article class="post-card">
+                <a class="post-card-link" href="{{postURL .ID}}"><h2>{{.Title}}</h2></a>
+                <div class="post-meta">
+                    {{if date .CreatedAt}}<time datetime="{{isoDate .CreatedAt}}">{{date .CreatedAt}}</time><span class="meta-separator" aria-hidden="true">·</span>{{end}}
+                    {{if gt .ReadingMinutes 0}}<span>约 {{.ReadingMinutes}} 分钟阅读</span>{{else}}<span>阅读时长暂不可用</span>{{end}}
+                </div>
+                <p class="post-excerpt">{{.GetExcerpt}}</p>
+                {{if .Tags}}<ul class="tag-list" aria-label="文章标签">{{range .Tags}}<li><a class="tag" href="{{tagURL .}}">{{.}}</a></li>{{end}}</ul>{{end}}
+                <a class="read-more" href="{{postURL .ID}}" aria-label="阅读全文：{{.Title}}">阅读全文 <span aria-hidden="true">→</span></a>
+            </article>
+            {{else}}
+            <div class="empty-state">
+                <span class="state-symbol" aria-hidden="true">○</span>
+                {{if or .Query .SelectedTag .SelectedYear}}
+                <h2 class="state-title">没有找到匹配的文章</h2>
+                <p class="state-description">换个关键词，或试试其他标签和年份。</p>
+                <a class="button secondary" href="/">查看全部文章</a>
+                {{else}}
+                <h2 class="state-title">故事正在路上</h2>
+                <p class="state-description">这里还没有文章，过些时候再来看看。</p>
+                {{end}}
+            </div>
+            {{end}}
+        </section>
+        {{if gt .PageCount 1}}
+        <nav class="pagination" aria-label="文章列表分页">
+            <ol>{{range .Pages}}<li>{{if .Current}}<span class="page-link" aria-current="page" aria-label="第 {{.Number}} 页，当前页">{{.Number}}</span>{{else}}<a class="page-link" href="{{.URL}}" aria-label="第 {{.Number}} 页">{{.Number}}</a>{{end}}</li>{{end}}</ol>
+        </nav>
+        {{end}}
+    </main>
+    {{template "footer" .}}
+</div>
+</body>
+</html>
+{{end}}

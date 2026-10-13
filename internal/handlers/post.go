@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"blog/internal/models"
@@ -44,19 +45,27 @@ func (h *PostHandler) GetPost(w http.ResponseWriter, postID string) {
 	}
 
 	type postDetail struct {
-		ID          string    `json:"id"`
-		Title       string    `json:"title"`
-		HTMLContent string    `json:"html_content"`
-		CreatedAt   time.Time `json:"created_at"`
-		UpdatedAt   time.Time `json:"updated_at"`
+		ID             string    `json:"id"`
+		Title          string    `json:"title"`
+		HTMLContent    string    `json:"html_content"`
+		CreatedAt      time.Time `json:"created_at"`
+		UpdatedAt      time.Time `json:"updated_at"`
+		Tags           []string  `json:"tags"`
+		ReadingMinutes int       `json:"reading_minutes"`
+		TravelStart    string    `json:"travel_start,omitempty"`
+		TravelEnd      string    `json:"travel_end,omitempty"`
 	}
 
 	detail := postDetail{
-		ID:          post.ID,
-		Title:       post.Title,
-		HTMLContent: post.GetHTMLContent(),
-		CreatedAt:   post.CreatedAt,
-		UpdatedAt:   post.UpdatedAt,
+		ID:             post.ID,
+		Title:          post.Title,
+		HTMLContent:    models.NormalizeArticleHTML(post.GetHTMLContent()),
+		CreatedAt:      post.CreatedAt,
+		UpdatedAt:      post.UpdatedAt,
+		Tags:           post.Tags,
+		ReadingMinutes: post.ReadingMinutes(),
+		TravelStart:    post.TravelStart,
+		TravelEnd:      post.TravelEnd,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -64,7 +73,12 @@ func (h *PostHandler) GetPost(w http.ResponseWriter, postID string) {
 }
 
 // GetAllPosts returns article summaries in reverse creation order.
-func (h *PostHandler) GetAllPosts(w http.ResponseWriter, _ *http.Request) {
+func (h *PostHandler) GetAllPosts(w http.ResponseWriter, r *http.Request) {
+	query, err := ParseListQuery(r.URL.Query())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 	posts, err := h.store.GetAllPosts()
 	if err != nil {
 		log.Printf("Error finding posts: %v", err)
@@ -72,20 +86,33 @@ func (h *PostHandler) GetAllPosts(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 
+	posts = FilterPosts(posts, query)
+	w.Header().Set("X-Total-Count", strconv.Itoa(len(posts)))
+	if query.Paginate {
+		w.Header().Set("X-Page", strconv.Itoa(query.Page))
+		w.Header().Set("X-Page-Size", strconv.Itoa(query.Limit))
+		posts = PagePosts(posts, query.Page, query.Limit)
+	}
 	type postSummary struct {
-		ID        string    `json:"id"`
-		Title     string    `json:"title"`
-		Excerpt   string    `json:"excerpt"`
-		CreatedAt time.Time `json:"created_at"`
+		ID             string    `json:"id"`
+		Title          string    `json:"title"`
+		Excerpt        string    `json:"excerpt"`
+		CreatedAt      time.Time `json:"created_at"`
+		UpdatedAt      time.Time `json:"updated_at"`
+		Tags           []string  `json:"tags"`
+		ReadingMinutes int       `json:"reading_minutes"`
 	}
 
 	summaries := make([]postSummary, len(posts))
 	for i, post := range posts {
 		summaries[i] = postSummary{
-			ID:        post.ID,
-			Title:     post.Title,
-			Excerpt:   post.GetExcerpt(),
-			CreatedAt: post.CreatedAt,
+			ID:             post.ID,
+			Title:          post.Title,
+			Excerpt:        post.GetExcerpt(),
+			CreatedAt:      post.CreatedAt,
+			UpdatedAt:      post.UpdatedAt,
+			Tags:           post.Tags,
+			ReadingMinutes: post.ReadingMinutes(),
 		}
 	}
 

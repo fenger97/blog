@@ -55,7 +55,7 @@ func TestGetPostReturnsRenderedDetail(t *testing.T) {
 	if _, ok := response["content"]; ok {
 		t.Fatalf("raw Markdown content must not be returned: %#v", response)
 	}
-	if htmlContent, ok := response["html_content"].(string); !ok || !strings.Contains(htmlContent, "<h1>Heading</h1>") {
+	if htmlContent, ok := response["html_content"].(string); !ok || !strings.Contains(htmlContent, ">Heading</h1>") {
 		t.Fatalf("html_content = %#v", response["html_content"])
 	}
 }
@@ -122,5 +122,21 @@ func TestGetAllPostsReturnsServerError(t *testing.T) {
 
 	if recorder.Code != http.StatusInternalServerError {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusInternalServerError)
+	}
+}
+
+func TestDetailResolvesContentLinks(t *testing.T) {
+	h := NewPostHandler(&fakePostReader{post: &models.Post{ID: "article", Content: "![photo](assets/photo.png)\n\n[related](related.md#section-2)"}})
+	w := httptest.NewRecorder()
+	h.GetPost(w, "article")
+	var detail map[string]any
+	if err := json.Unmarshal(w.Body.Bytes(), &detail); err != nil {
+		t.Fatal(err)
+	}
+	body := detail["html_content"].(string)
+	for _, expected := range []string{"/content/assets/photo.png", "/post/related#section-2"} {
+		if !strings.Contains(body, expected) {
+			t.Errorf("missing %s in %s", expected, body)
+		}
 	}
 }

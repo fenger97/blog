@@ -12,6 +12,10 @@ type Config struct {
 	ContentBaseURL  string
 	ContentCacheTTL time.Duration
 	GitHubToken     string
+	ContentMode     string
+	ContentDir      string
+	ContentCacheDir string
+	SiteURL         string
 }
 
 // LoadConfig 加载配置
@@ -24,6 +28,10 @@ func LoadConfig() *Config {
 		ContentBaseURL:  getEnv("CONTENT_BASE_URL", "https://raw.githubusercontent.com/fenger97/blog/master/content"),
 		ContentCacheTTL: getDuration("CONTENT_CACHE_TTL", 5*time.Minute),
 		GitHubToken:     os.Getenv("GITHUB_TOKEN"),
+		ContentMode:     getEnv("CONTENT_MODE", "github"),
+		ContentDir:      getEnv("CONTENT_DIR", "content"),
+		ContentCacheDir: os.Getenv("CONTENT_CACHE_DIR"),
+		SiteURL:         getEnv("SITE_URL", "https://fenger.xin"),
 	}
 }
 

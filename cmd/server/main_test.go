@@ -5,7 +5,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"blog/internal/handlers"
 	"blog/internal/models"
 )
 
@@ -20,7 +19,7 @@ func (emptyPostReader) GetAllPosts() ([]*models.Post, error) {
 }
 
 func TestRouterRejectsWriteMethods(t *testing.T) {
-	router := newRouter(handlers.NewPostHandler(emptyPostReader{}))
+	router := newRouter(emptyPostReader{})
 
 	for _, path := range []string{"/", "/posts", "/post/hello-world", "/api/post?id=hello-world", "/static/css/style.css"} {
 		recorder := httptest.NewRecorder()
@@ -36,7 +35,7 @@ func TestRouterRejectsWriteMethods(t *testing.T) {
 }
 
 func TestRouterDoesNotRegisterRemovedRoutes(t *testing.T) {
-	router := newRouter(handlers.NewPostHandler(emptyPostReader{}))
+	router := newRouter(emptyPostReader{})
 
 	for _, path := range []string{"/login", "/logout", "/status", "/upload/image", "/sub", "/static/login.html"} {
 		recorder := httptest.NewRecorder()

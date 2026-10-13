@@ -1,0 +1,34 @@
+{{define "error"}}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    {{template "head" .}}
+</head>
+<body>
+<div class="container">
+    {{template "header" .}}
+    <main id="main-content" class="main-content" tabindex="-1">
+        <div class="error-state">
+            <span class="state-symbol" aria-hidden="true">{{.ErrorCode}}</span>
+            {{if eq .ErrorCode 404}}
+            <h1 class="state-title">页面没有找到</h1>
+            <p class="state-description">{{if .ErrorMessage}}{{.ErrorMessage}}{{else}}链接可能已更改，或文章已移除。回首页看看其他故事吧。{{end}}</p>
+            {{else if eq .ErrorCode 502}}
+            <h1 class="state-title">文章暂时无法读取</h1>
+            <p class="state-description">内容来源暂时没有响应，请稍后重试。</p>
+            {{else}}
+            <h1 class="state-title">页面暂时无法打开</h1>
+            <p class="state-description">{{if .ErrorMessage}}{{.ErrorMessage}}{{else}}遇到了一点问题，请稍后重试。{{end}}</p>
+            {{end}}
+            <div class="state-actions">
+                {{if ne .ErrorCode 404}}<button class="button" type="button" data-retry hidden>重新加载</button>{{end}}
+                <a class="button secondary" href="/">返回首页</a>
+            </div>
+            {{if ne .ErrorCode 404}}<noscript><p>可以使用浏览器的刷新按钮重新尝试。</p></noscript>{{end}}
+        </div>
+    </main>
+    {{template "footer" .}}
+</div>
+</body>
+</html>
+{{end}}

@@ -1,0 +1,23 @@
+name: Verify blog
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.10'
+          cache: true
+      - run: go mod download && go mod verify
+      - run: go run ./cmd/content check
+      - run: go test -race ./...
+      - run: go vet ./...
+      - run: CGO_ENABLED=0 go build -o /tmp/fenger-service ./cmd/server

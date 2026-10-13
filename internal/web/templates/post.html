@@ -1,0 +1,52 @@
+{{define "post"}}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    {{template "head" .}}
+    <script src="/static/js/post.js" defer></script>
+</head>
+<body>
+<div class="container">
+    {{template "header" .}}
+    <main id="main-content" class="main-content" tabindex="-1">
+        <a class="back-link" href="/">← 全部文章</a>
+        <article class="post-detail">
+            <header class="post-header">
+                <h1 class="post-title">{{.Post.Title}}</h1>
+                <div class="post-meta">
+                    {{if date .Post.CreatedAt}}<span>发布于 <time datetime="{{isoDate .Post.CreatedAt}}">{{date .Post.CreatedAt}}</time></span><span class="meta-separator" aria-hidden="true">·</span>{{end}}
+                    {{if gt .Post.ReadingMinutes 0}}<span>约 {{.Post.ReadingMinutes}} 分钟阅读</span>{{else}}<span>阅读时长暂不可用</span>{{end}}
+                    {{if and (date .Post.UpdatedAt) (ne (date .Post.UpdatedAt) (date .Post.CreatedAt))}}<span class="meta-separator" aria-hidden="true">·</span><span>更新于 <time datetime="{{isoDate .Post.UpdatedAt}}">{{date .Post.UpdatedAt}}</time></span>{{end}}
+                </div>
+                {{if .TravelDates}}<p class="travel-dates">旅行日期 · {{.TravelDates}}</p>{{end}}
+                {{if .Post.Tags}}<ul class="tag-list" aria-label="文章标签">{{range .Post.Tags}}<li><a class="tag" href="{{tagURL .}}">{{.}}</a></li>{{end}}</ul>{{end}}
+            </header>
+            {{if .TOC}}
+            <details class="toc" open>
+                <summary class="toc-summary">文章目录</summary>
+                <nav aria-label="文章目录">
+                    <ol class="toc-list">{{range .TOC}}<li class="toc-level-{{.Level}}"><a href="#{{.ID}}" data-toc-link>{{.Text}}</a></li>{{end}}</ol>
+                </nav>
+            </details>
+            {{end}}
+            <div class="post-content">{{.ArticleHTML}}</div>
+        </article>
+        {{if or .PrevPost .NextPost}}
+        <nav class="post-navigation" aria-label="相邻文章">
+            {{if .PrevPost}}<a class="previous-post" href="{{postURL .PrevPost.ID}}"><span class="nav-direction">← 上一篇</span><strong>{{.PrevPost.Title}}</strong></a>{{end}}
+            {{if .NextPost}}<a class="next-post" href="{{postURL .NextPost.ID}}"><span class="nav-direction">下一篇 →</span><strong>{{.NextPost.Title}}</strong></a>{{end}}
+        </nav>
+        {{end}}
+    </main>
+    {{template "footer" .}}
+</div>
+<dialog class="image-viewer" id="image-viewer" aria-labelledby="image-viewer-title">
+    <div class="image-viewer-header">
+        <h2 class="image-viewer-title" id="image-viewer-title">查看图片</h2>
+        <button class="image-close" type="button" aria-label="关闭图片，返回文章">关闭 <span aria-hidden="true">×</span></button>
+    </div>
+    <figure class="image-viewer-figure"><img id="expanded-image" alt=""><figcaption id="expanded-image-caption"></figcaption></figure>
+</dialog>
+</body>
+</html>
+{{end}}
